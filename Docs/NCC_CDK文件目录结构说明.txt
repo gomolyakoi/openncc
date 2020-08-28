@@ -1,0 +1,24 @@
+├── Docs //NCC文档
+├── NCC_View
+│   └── Linux
+│       ├── readme.md
+│       └── Release.zip //NCC VIEW软件
+├── Public
+│   ├── Firmwares
+│   ├── Library
+│   │   ├── For_C&C++ //C&C++ 版本SDK
+│   │   ├── For_Python //Python 版本SDK
+│   └── README.md
+├── Samples
+│   ├── bin
+│   ├── How_to //示例
+│   │   ├── Capture video 
+│   │   ├── Load a model
+│   │   └── work with OpenVINO 
+│   └── README.md
+└── Tools
+    ├── deployment //修改运行环境脚本，执行后不需sudo权限即可执行NCC View
+    └── myraid_compiler //模型blob文件生成工具
+
+
+
