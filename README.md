@@ -4,6 +4,6 @@
 
 ### Support
 
-If you need any help, please post us an issue on GitHub Issues,send us an email (support@eyecloud.ai) or leave message on [OpenNCC](www.openncc.com.cn)
+If you need any help, please post us an issue on GitHub Issues,send us an email (support@eyecloud.ai) or leave message on [OpenNCC](https://www.openncc.com.cn)
 
 You are welcome to contact us for your suggestions, and model request.
