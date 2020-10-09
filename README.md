@@ -1,6 +1,6 @@
 # OpenNCC-SDK
 
-[Documentation](https://github.com/EyecloudAi/OpenNCC-SDK/wiki) | [简体中文](https://www.openncc.com.cn/docs)
+[Documentation](https://github.com/EyecloudAi/OpenNCC-SDK/wiki)
 
 ### Support
 
