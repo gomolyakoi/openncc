@@ -114,7 +114,7 @@ def main():
 			#type,seq,size=get_header_info(metabuf[0:offset])
 			#print("meta type=%d seq=%d  size=%d" % (type,seq,size))
 			
-			barray = metabuf[offset:size]			
+			barray = metabuf[offset+ncc.OUTPUT_INDEX_SIZE:size]			
 			#print("meta len=%d/%d" % (len(barray),size))
 			#print_hex(barray[0:14])
 			count=len(barray)//2

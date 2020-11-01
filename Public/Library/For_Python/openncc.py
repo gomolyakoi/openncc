@@ -94,6 +94,9 @@ except AttributeError:
 _openncc.YUV420p_swigconstant(_openncc)
 YUV420p = _openncc.YUV420p
 
+_openncc.RAW14_swigconstant(_openncc)
+RAW14 = _openncc.RAW14
+
 _openncc.H26X_swigconstant(_openncc)
 H26X = _openncc.H26X
 
@@ -108,6 +111,51 @@ MONO = _openncc.MONO
 
 _openncc.DEPTH_swigconstant(_openncc)
 DEPTH = _openncc.DEPTH
+
+_openncc.OUTPUT_INDEX_SIZE_swigconstant(_openncc)
+OUTPUT_INDEX_SIZE = _openncc.OUTPUT_INDEX_SIZE
+
+_openncc.USB_SUCCESS_swigconstant(_openncc)
+USB_SUCCESS = _openncc.USB_SUCCESS
+
+_openncc.USB_ERROR_IO_swigconstant(_openncc)
+USB_ERROR_IO = _openncc.USB_ERROR_IO
+
+_openncc.USB_ERROR_INVALID_PARAM_swigconstant(_openncc)
+USB_ERROR_INVALID_PARAM = _openncc.USB_ERROR_INVALID_PARAM
+
+_openncc.USB_ERROR_ACCESS_swigconstant(_openncc)
+USB_ERROR_ACCESS = _openncc.USB_ERROR_ACCESS
+
+_openncc.USB_ERROR_NO_DEVICE_swigconstant(_openncc)
+USB_ERROR_NO_DEVICE = _openncc.USB_ERROR_NO_DEVICE
+
+_openncc.USB_ERROR_NOT_FOUND_swigconstant(_openncc)
+USB_ERROR_NOT_FOUND = _openncc.USB_ERROR_NOT_FOUND
+
+_openncc.USB_ERROR_BUSY_swigconstant(_openncc)
+USB_ERROR_BUSY = _openncc.USB_ERROR_BUSY
+
+_openncc.USB_ERROR_TIMEOUT_swigconstant(_openncc)
+USB_ERROR_TIMEOUT = _openncc.USB_ERROR_TIMEOUT
+
+_openncc.USB_ERROR_OVERFLOW_swigconstant(_openncc)
+USB_ERROR_OVERFLOW = _openncc.USB_ERROR_OVERFLOW
+
+_openncc.USB_ERROR_PIPE_swigconstant(_openncc)
+USB_ERROR_PIPE = _openncc.USB_ERROR_PIPE
+
+_openncc.USB_ERROR_INTERRUPTED_swigconstant(_openncc)
+USB_ERROR_INTERRUPTED = _openncc.USB_ERROR_INTERRUPTED
+
+_openncc.USB_ERROR_NO_MEM_swigconstant(_openncc)
+USB_ERROR_NO_MEM = _openncc.USB_ERROR_NO_MEM
+
+_openncc.USB_ERROR_NOT_SUPPORTED_swigconstant(_openncc)
+USB_ERROR_NOT_SUPPORTED = _openncc.USB_ERROR_NOT_SUPPORTED
+
+_openncc.USB_ERROR_OTHER_swigconstant(_openncc)
+USB_ERROR_OTHER = _openncc.USB_ERROR_OTHER
 
 _openncc.IMG_FORMAT_GRAY_swigconstant(_openncc)
 IMG_FORMAT_GRAY = _openncc.IMG_FORMAT_GRAY
@@ -219,6 +267,175 @@ class CameraInfo(_object):
 CameraInfo_swigregister = _openncc.CameraInfo_swigregister
 CameraInfo_swigregister(CameraInfo)
 
+
+_openncc.MAX_LABEL_SIZE_swigconstant(_openncc)
+MAX_LABEL_SIZE = _openncc.MAX_LABEL_SIZE
+
+_openncc.MAX_EXTINPUT_SIZE_swigconstant(_openncc)
+MAX_EXTINPUT_SIZE = _openncc.MAX_EXTINPUT_SIZE
+
+_openncc.MAX_OBJ_swigconstant(_openncc)
+MAX_OBJ = _openncc.MAX_OBJ
+class Network1Par(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Network1Par, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, Network1Par, name)
+    __repr__ = _swig_repr
+    __swig_setmethods__["imageWidth"] = _openncc.Network1Par_imageWidth_set
+    __swig_getmethods__["imageWidth"] = _openncc.Network1Par_imageWidth_get
+    if _newclass:
+        imageWidth = _swig_property(_openncc.Network1Par_imageWidth_get, _openncc.Network1Par_imageWidth_set)
+    __swig_setmethods__["imageHeight"] = _openncc.Network1Par_imageHeight_set
+    __swig_getmethods__["imageHeight"] = _openncc.Network1Par_imageHeight_get
+    if _newclass:
+        imageHeight = _swig_property(_openncc.Network1Par_imageHeight_get, _openncc.Network1Par_imageHeight_set)
+    __swig_setmethods__["startX"] = _openncc.Network1Par_startX_set
+    __swig_getmethods__["startX"] = _openncc.Network1Par_startX_get
+    if _newclass:
+        startX = _swig_property(_openncc.Network1Par_startX_get, _openncc.Network1Par_startX_set)
+    __swig_setmethods__["startY"] = _openncc.Network1Par_startY_set
+    __swig_getmethods__["startY"] = _openncc.Network1Par_startY_get
+    if _newclass:
+        startY = _swig_property(_openncc.Network1Par_startY_get, _openncc.Network1Par_startY_set)
+    __swig_setmethods__["endX"] = _openncc.Network1Par_endX_set
+    __swig_getmethods__["endX"] = _openncc.Network1Par_endX_get
+    if _newclass:
+        endX = _swig_property(_openncc.Network1Par_endX_get, _openncc.Network1Par_endX_set)
+    __swig_setmethods__["endY"] = _openncc.Network1Par_endY_set
+    __swig_getmethods__["endY"] = _openncc.Network1Par_endY_get
+    if _newclass:
+        endY = _swig_property(_openncc.Network1Par_endY_get, _openncc.Network1Par_endY_set)
+    __swig_setmethods__["inputDimWidth"] = _openncc.Network1Par_inputDimWidth_set
+    __swig_getmethods__["inputDimWidth"] = _openncc.Network1Par_inputDimWidth_get
+    if _newclass:
+        inputDimWidth = _swig_property(_openncc.Network1Par_inputDimWidth_get, _openncc.Network1Par_inputDimWidth_set)
+    __swig_setmethods__["inputDimHeight"] = _openncc.Network1Par_inputDimHeight_set
+    __swig_getmethods__["inputDimHeight"] = _openncc.Network1Par_inputDimHeight_get
+    if _newclass:
+        inputDimHeight = _swig_property(_openncc.Network1Par_inputDimHeight_get, _openncc.Network1Par_inputDimHeight_set)
+    __swig_setmethods__["inputFormat"] = _openncc.Network1Par_inputFormat_set
+    __swig_getmethods__["inputFormat"] = _openncc.Network1Par_inputFormat_get
+    if _newclass:
+        inputFormat = _swig_property(_openncc.Network1Par_inputFormat_get, _openncc.Network1Par_inputFormat_set)
+    __swig_setmethods__["meanValue"] = _openncc.Network1Par_meanValue_set
+    __swig_getmethods__["meanValue"] = _openncc.Network1Par_meanValue_get
+    if _newclass:
+        meanValue = _swig_property(_openncc.Network1Par_meanValue_get, _openncc.Network1Par_meanValue_set)
+    __swig_setmethods__["stdValue"] = _openncc.Network1Par_stdValue_set
+    __swig_getmethods__["stdValue"] = _openncc.Network1Par_stdValue_get
+    if _newclass:
+        stdValue = _swig_property(_openncc.Network1Par_stdValue_get, _openncc.Network1Par_stdValue_set)
+    __swig_setmethods__["isOutputYUV"] = _openncc.Network1Par_isOutputYUV_set
+    __swig_getmethods__["isOutputYUV"] = _openncc.Network1Par_isOutputYUV_get
+    if _newclass:
+        isOutputYUV = _swig_property(_openncc.Network1Par_isOutputYUV_get, _openncc.Network1Par_isOutputYUV_set)
+    __swig_setmethods__["isOutputH26X"] = _openncc.Network1Par_isOutputH26X_set
+    __swig_getmethods__["isOutputH26X"] = _openncc.Network1Par_isOutputH26X_get
+    if _newclass:
+        isOutputH26X = _swig_property(_openncc.Network1Par_isOutputH26X_get, _openncc.Network1Par_isOutputH26X_set)
+    __swig_setmethods__["isOutputJPEG"] = _openncc.Network1Par_isOutputJPEG_set
+    __swig_getmethods__["isOutputJPEG"] = _openncc.Network1Par_isOutputJPEG_get
+    if _newclass:
+        isOutputJPEG = _swig_property(_openncc.Network1Par_isOutputJPEG_get, _openncc.Network1Par_isOutputJPEG_set)
+    __swig_setmethods__["mode"] = _openncc.Network1Par_mode_set
+    __swig_getmethods__["mode"] = _openncc.Network1Par_mode_get
+    if _newclass:
+        mode = _swig_property(_openncc.Network1Par_mode_get, _openncc.Network1Par_mode_set)
+    __swig_setmethods__["extInputs"] = _openncc.Network1Par_extInputs_set
+    __swig_getmethods__["extInputs"] = _openncc.Network1Par_extInputs_get
+    if _newclass:
+        extInputs = _swig_property(_openncc.Network1Par_extInputs_get, _openncc.Network1Par_extInputs_set)
+    __swig_setmethods__["modelCascade"] = _openncc.Network1Par_modelCascade_set
+    __swig_getmethods__["modelCascade"] = _openncc.Network1Par_modelCascade_get
+    if _newclass:
+        modelCascade = _swig_property(_openncc.Network1Par_modelCascade_get, _openncc.Network1Par_modelCascade_set)
+    __swig_setmethods__["inferenceACC"] = _openncc.Network1Par_inferenceACC_set
+    __swig_getmethods__["inferenceACC"] = _openncc.Network1Par_inferenceACC_get
+    if _newclass:
+        inferenceACC = _swig_property(_openncc.Network1Par_inferenceACC_get, _openncc.Network1Par_inferenceACC_set)
+
+    def __init__(self):
+        this = _openncc.new_Network1Par()
+        try:
+            self.this.append(this)
+        except Exception:
+            self.this = this
+    __swig_destroy__ = _openncc.delete_Network1Par
+    __del__ = lambda self: None
+Network1Par_swigregister = _openncc.Network1Par_swigregister
+Network1Par_swigregister(Network1Par)
+
+class Network2Par(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Network2Par, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, Network2Par, name)
+    __repr__ = _swig_repr
+    __swig_setmethods__["startXAdj"] = _openncc.Network2Par_startXAdj_set
+    __swig_getmethods__["startXAdj"] = _openncc.Network2Par_startXAdj_get
+    if _newclass:
+        startXAdj = _swig_property(_openncc.Network2Par_startXAdj_get, _openncc.Network2Par_startXAdj_set)
+    __swig_setmethods__["startYAdj"] = _openncc.Network2Par_startYAdj_set
+    __swig_getmethods__["startYAdj"] = _openncc.Network2Par_startYAdj_get
+    if _newclass:
+        startYAdj = _swig_property(_openncc.Network2Par_startYAdj_get, _openncc.Network2Par_startYAdj_set)
+    __swig_setmethods__["endXAdj"] = _openncc.Network2Par_endXAdj_set
+    __swig_getmethods__["endXAdj"] = _openncc.Network2Par_endXAdj_get
+    if _newclass:
+        endXAdj = _swig_property(_openncc.Network2Par_endXAdj_get, _openncc.Network2Par_endXAdj_set)
+    __swig_setmethods__["endYAdj"] = _openncc.Network2Par_endYAdj_set
+    __swig_getmethods__["endYAdj"] = _openncc.Network2Par_endYAdj_get
+    if _newclass:
+        endYAdj = _swig_property(_openncc.Network2Par_endYAdj_get, _openncc.Network2Par_endYAdj_set)
+    __swig_setmethods__["labelMask"] = _openncc.Network2Par_labelMask_set
+    __swig_getmethods__["labelMask"] = _openncc.Network2Par_labelMask_get
+    if _newclass:
+        labelMask = _swig_property(_openncc.Network2Par_labelMask_get, _openncc.Network2Par_labelMask_set)
+    __swig_setmethods__["minConf"] = _openncc.Network2Par_minConf_set
+    __swig_getmethods__["minConf"] = _openncc.Network2Par_minConf_get
+    if _newclass:
+        minConf = _swig_property(_openncc.Network2Par_minConf_get, _openncc.Network2Par_minConf_set)
+    __swig_setmethods__["inputDimWidth"] = _openncc.Network2Par_inputDimWidth_set
+    __swig_getmethods__["inputDimWidth"] = _openncc.Network2Par_inputDimWidth_get
+    if _newclass:
+        inputDimWidth = _swig_property(_openncc.Network2Par_inputDimWidth_get, _openncc.Network2Par_inputDimWidth_set)
+    __swig_setmethods__["inputDimHeight"] = _openncc.Network2Par_inputDimHeight_set
+    __swig_getmethods__["inputDimHeight"] = _openncc.Network2Par_inputDimHeight_get
+    if _newclass:
+        inputDimHeight = _swig_property(_openncc.Network2Par_inputDimHeight_get, _openncc.Network2Par_inputDimHeight_set)
+    __swig_setmethods__["inputFormat"] = _openncc.Network2Par_inputFormat_set
+    __swig_getmethods__["inputFormat"] = _openncc.Network2Par_inputFormat_get
+    if _newclass:
+        inputFormat = _swig_property(_openncc.Network2Par_inputFormat_get, _openncc.Network2Par_inputFormat_set)
+    __swig_setmethods__["meanValue"] = _openncc.Network2Par_meanValue_set
+    __swig_getmethods__["meanValue"] = _openncc.Network2Par_meanValue_get
+    if _newclass:
+        meanValue = _swig_property(_openncc.Network2Par_meanValue_get, _openncc.Network2Par_meanValue_set)
+    __swig_setmethods__["stdValue"] = _openncc.Network2Par_stdValue_set
+    __swig_getmethods__["stdValue"] = _openncc.Network2Par_stdValue_get
+    if _newclass:
+        stdValue = _swig_property(_openncc.Network2Par_stdValue_get, _openncc.Network2Par_stdValue_set)
+    __swig_setmethods__["extInputs"] = _openncc.Network2Par_extInputs_set
+    __swig_getmethods__["extInputs"] = _openncc.Network2Par_extInputs_get
+    if _newclass:
+        extInputs = _swig_property(_openncc.Network2Par_extInputs_get, _openncc.Network2Par_extInputs_set)
+    __swig_setmethods__["modelCascade"] = _openncc.Network2Par_modelCascade_set
+    __swig_getmethods__["modelCascade"] = _openncc.Network2Par_modelCascade_get
+    if _newclass:
+        modelCascade = _swig_property(_openncc.Network2Par_modelCascade_get, _openncc.Network2Par_modelCascade_set)
+
+    def __init__(self):
+        this = _openncc.new_Network2Par()
+        try:
+            self.this.append(this)
+        except Exception:
+            self.this = this
+    __swig_destroy__ = _openncc.delete_Network2Par
+    __del__ = lambda self: None
+Network2Par_swigregister = _openncc.Network2Par_swigregister
+Network2Par_swigregister(Network2Par)
+
 class frameSpecOut(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, frameSpecOut, name, value)
@@ -237,6 +454,10 @@ class frameSpecOut(_object):
     __swig_getmethods__["size"] = _openncc.frameSpecOut_size_get
     if _newclass:
         size = _swig_property(_openncc.frameSpecOut_size_get, _openncc.frameSpecOut_size_set)
+    __swig_setmethods__["temps"] = _openncc.frameSpecOut_temps_set
+    __swig_getmethods__["temps"] = _openncc.frameSpecOut_temps_get
+    if _newclass:
+        temps = _swig_property(_openncc.frameSpecOut_temps_get, _openncc.frameSpecOut_temps_set)
     __swig_setmethods__["res"] = _openncc.frameSpecOut_res_set
     __swig_getmethods__["res"] = _openncc.frameSpecOut_res_get
     if _newclass:
@@ -282,9 +503,17 @@ def load_fw(bootExe: 'char const *', firmware: 'char const *') -> "int":
     return _openncc.load_fw(bootExe, firmware)
 load_fw = _openncc.load_fw
 
-def sdk_init(cb: 'vscRecvCb', param: 'void *', blob_path: 'char *', cam: 'CameraInfo', cam_Len: 'int') -> "int":
+def load_fwExt(bootExe: 'char const *', firmware: 'char const *', pid: 'int') -> "int":
+    return _openncc.load_fwExt(bootExe, firmware, pid)
+load_fwExt = _openncc.load_fwExt
+
+def sdk_init(cb: 'vscRecvCb', param: 'void *', blob_path: 'char const *', cam: 'CameraInfo', cam_Len: 'int') -> "int":
     return _openncc.sdk_init(cb, param, blob_path, cam, cam_Len)
 sdk_init = _openncc.sdk_init
+
+def sdk_net2_init(cb: 'vscRecvCb', param: 'void *', blob_path: 'char const *', par: 'Network1Par', par_Len: 'int', blob2_path: 'char const *', par2: 'Network2Par', par2_Len: 'int') -> "int":
+    return _openncc.sdk_net2_init(cb, param, blob_path, par, par_Len, blob2_path, par2, par2_Len)
+sdk_net2_init = _openncc.sdk_net2_init
 
 def sdk_uninit() -> "void":
     return _openncc.sdk_uninit()
@@ -293,6 +522,10 @@ sdk_uninit = _openncc.sdk_uninit
 def get_usb_version() -> "int":
     return _openncc.get_usb_version()
 get_usb_version = _openncc.get_usb_version
+
+def get_err_no() -> "int":
+    return _openncc.get_err_no()
+get_err_no = _openncc.get_err_no
 
 def read_yuv_data(pbuf: 'char *', size: 'int *', blocked: 'int') -> "int":
     return _openncc.read_yuv_data(pbuf, size, blocked)
@@ -310,14 +543,6 @@ def read_meta_data(pbuf: 'char *', size: 'int *', blocked: 'int') -> "int":
     return _openncc.read_meta_data(pbuf, size, blocked)
 read_meta_data = _openncc.read_meta_data
 
-def read_ir_data(pbuf: 'char *', size: 'int *', blocked: 'int') -> "int":
-    return _openncc.read_ir_data(pbuf, size, blocked)
-read_ir_data = _openncc.read_ir_data
-
-def read_depth_data(pbuf: 'char *', size: 'int *', blocked: 'int') -> "int":
-    return _openncc.read_depth_data(pbuf, size, blocked)
-read_depth_data = _openncc.read_depth_data
-
 def down_image_data(data: 'char const *', len: 'int') -> "int":
     return _openncc.down_image_data(data, len)
 down_image_data = _openncc.down_image_data
@@ -325,10 +550,6 @@ down_image_data = _openncc.down_image_data
 def get_meta_size() -> "int":
     return _openncc.get_meta_size()
 get_meta_size = _openncc.get_meta_size
-
-def get_err_no() -> "int":
-    return _openncc.get_err_no()
-get_err_no = _openncc.get_err_no
 
 _openncc.MAX_MODE_SIZE_swigconstant(_openncc)
 MAX_MODE_SIZE = _openncc.MAX_MODE_SIZE
@@ -359,6 +580,12 @@ VIDEO_OUT_SINGLE = _openncc.VIDEO_OUT_SINGLE
 
 _openncc.VIDEO_OUT_CONTINUOUS_swigconstant(_openncc)
 VIDEO_OUT_CONTINUOUS = _openncc.VIDEO_OUT_CONTINUOUS
+
+_openncc.PWM_OUT_DISABLE_swigconstant(_openncc)
+PWM_OUT_DISABLE = _openncc.PWM_OUT_DISABLE
+
+_openncc.PWM_OUT_ENABLE_swigconstant(_openncc)
+PWM_OUT_ENABLE = _openncc.PWM_OUT_ENABLE
 class SensorModesConfig(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, SensorModesConfig, name, value)

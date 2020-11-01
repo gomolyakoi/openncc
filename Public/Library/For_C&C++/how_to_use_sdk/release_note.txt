@@ -1,0 +1,22 @@
+1.0.0
+usb vsc  control/bulk transfer with movidus2480
+
+1.0.1
+1: 修复了sdk int失败后不能重启进入boot loader状态错误
+2: 修改了增加读取网络模型xml获取模型输入宽度/高度问题
+3：增加了版本读取接口
+
+2.0.0
+1:增加了python接口
+2:增加了get_meta_size()接口获取meta数据大小
+2.0.1
+1：增加了android接口
+2.0.2
+1：增加了3d命令支持
+
+3.0.0
+1: 增加了2个网络模型接口
+2：增加了1个网络模型2个输入接口
+
+3.0.1
+1: 更新release mv 固件
