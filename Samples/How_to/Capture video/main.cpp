@@ -28,8 +28,8 @@ void *yuvThread(void *arg)
     SensorModesConfig cameraCfg;
     memcpy(&cameraCfg, arg, sizeof(cameraCfg));
 
-    //打开YUV输出开关
-    camera_yuv420_out(YUV420_OUT_CONTINUOUS);
+    //Turn on YUVdata output switch
+    camera_video_out(YUV420p,VIDEO_OUT_CONTINUOUS);
 
     char *recv_data = (char*)malloc(sizeof(frameSpecOut) + cameraCfg.camWidth*cameraCfg.camHeight*3/2);
     if (recv_data < 0)
@@ -50,19 +50,19 @@ void *yuvThread(void *arg)
         memcpy(&hdr, recv_data, sizeof(frameSpecOut));
 //        printf("hdr: type %d, seqNo %d, size %d\n", hdr.type, hdr.seqNo,hdr.size);
 
-        //获取YUV数据
+        //get YUV data
         yuv420p = (char*)recv_data + sizeof(frameSpecOut);
 
         sprintf(src, "demo_yuv420_video_%dx%d@%dfps(scale:%d%%)", cameraCfg.camWidth,
                 cameraCfg.camHeight, cameraCfg.camFps, (int) (100 * scale));
         opencv_show_img_func(yuv420p , cameraCfg.camWidth, cameraCfg.camHeight, scale, src);
 
-        //测试退出
+        //exit test 
         if(hdr.seqNo >= 800)
         {
             free(recv_data);
-            //关闭yuv420p输出
-            camera_yuv420_out(YUV420_OUT_DISABLE);
+            //turn off yuv420p data output
+            camera_video_out(YUV420p,VIDEO_OUT_DISABLE );
             break;
         }
     }
@@ -90,8 +90,8 @@ void *jpegThread(void *arg)
 
     os_sleep(3000);
     ///////////////////////////////////////////////////////////////
-    //触发单次拍照，读取jpeg数据
-    camera_mjpeg_out(MJPEG_OUT_SINGLE);
+    //Output single frame，read jpeg data
+    camera_video_out(JPEG,VIDEO_OUT_SINGLE);
     size = max_recv_size;
     if (read_jpg_data(recv_data, &size, 1) < 0)
     {
@@ -107,13 +107,13 @@ void *jpegThread(void *arg)
     printf("save jpg file %d\n", size);
     ///////////////////////////////////////////////////////////////
 
-    //触发连续输出jpeg数据
-    camera_mjpeg_out(MJPEG_OUT_CONTINUOUS);
+    //Output continuous frames
+    camera_video_out(JPEG,VIDEO_OUT_CONTINUOUS);
     while(1)
     {
         char *jpeg;
 
-        //阻塞读取jpeg数据
+        //Block reading jpeg data
         size = max_recv_size;
         if (read_jpg_data(recv_data, &size, 1) < 0)
         {
@@ -123,16 +123,16 @@ void *jpegThread(void *arg)
         memcpy(&hdr, recv_data, sizeof(frameSpecOut));
 //        printf("hdr: type %d, seqNo %d, size %d\n", hdr.type, hdr.seqNo,hdr.size);
 
-        //获取jpeg数据
+        //gert jpeg data
         jpeg = (char*)recv_data + sizeof(frameSpecOut);
 
-        //测试退出
+        //exit test
         if(hdr.seqNo >= 700)
         {
             free(recv_data);
 
-            //关闭jpeg输出
-            camera_mjpeg_out(MJPEG_OUT_DISABLE);
+            //turn off jpeg data output
+            camera_video_out(JPEG,VIDEO_OUT_DISABLE);
             break;
         }
     }
@@ -142,7 +142,7 @@ void *jpegThread(void *arg)
     return 0;
 }
 
-/* H26x文件播放: ffplay x_x.h26x */
+/* H26x file display: ffplay x_x.h26x */
 void *h26xThread(void *arg)
 {
     SensorModesConfig cameraCfg;
@@ -162,14 +162,14 @@ void *h26xThread(void *arg)
     sprintf(src, "%d_%d.h26x", cameraCfg.camWidth , cameraCfg.camHeight);
     fp = fopen(src, "w");
 
-    //打开h26x输出
-    camera_h26x_out(H26X_OUT_ENABLE);
+    //turn on h26x data output
+    camera_video_out(H26X,VIDEO_OUT_CONTINUOUS);
 
     while (1)
     {
         char *h26x;
         int  w_size;
-        //阻塞读取jpeg数据
+        //block reading jpeg data
         size = max_recv_size;
         if (read_26x_data(recv_data, &size, 1) < 0)
         {
@@ -178,20 +178,20 @@ void *h26xThread(void *arg)
         }
         memcpy(&hdr, recv_data, sizeof(frameSpecOut));
 
-        /* 获取H65视频流数据 */
+        /* get H65 video stream data */
         char *h265_data = (char *) recv_data + sizeof(frameSpecOut);
         if(fp !=0)
         {
             fwrite((char*)h265_data, 1, hdr.size, fp);
         }
 
-        //测试退出
+        //exit test
         if (hdr.seqNo >= 700)
         {
             fclose(fp);
             free(recv_data);
-            //关闭h26x输出
-            camera_h26x_out(H26X_OUT_DISABLE);
+            //turn off h26x output
+            camera_video_out(H26X,VIDEO_OUT_DISABLE);
             break;
         }
     }
@@ -208,8 +208,8 @@ int main(void)
     pthread_t threadid_yuv,threadid_h26x,threadid_jpeg;
     memset(&cam_info, 0, sizeof(cam_info));
 
-    //1.加载固件
-    ret = load_fw("./fw/flicRefApp.mvcmd");
+    //1.load firmware
+    ret = load_fw("./moviUsbBoot","./fw/flicRefApp.mvcmd");
     if (ret < 0)
     {
         printf("lowd firmware error! return \n");
@@ -217,7 +217,7 @@ int main(void)
     }
     printf("usb sersion:%d \n", get_usb_version());
 
-    //2. 获取camera模式支持列表
+    //2. Get the current camera mode support list
     SensorModesConfig cameraCfg;
     SensorModesList list;
     camera_control_get_features(&list);
@@ -232,12 +232,12 @@ int main(void)
                 features.maxEXP, features.minGain, features.maxGain);
     }
 
-    //3. 选择camera工作模式
+    //3. Select camera working mode
     int sensorModeId = 0; //0:1080P, 1:4K
     camera_select_sensor(sensorModeId);
     memcpy(&cameraCfg, &list.mode[sensorModeId], sizeof(cameraCfg)); //select camera info
 
-    //4. 配置设备资源
+    //4. Configure device resoures
     cam_info.imageWidth   = cameraCfg.camWidth;
     cam_info.imageHeight  = cameraCfg.camHeight;
     cam_info.isOutputYUV  = 1;
@@ -250,7 +250,7 @@ int main(void)
     if (ret < 0)
         return -1;
 
-    //5. 创建接收线程
+    //5. Create receiving thread
     int rv = pthread_create(&threadid_yuv, NULL, yuvThread, &cameraCfg);
     if (rv)
     {

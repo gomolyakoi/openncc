@@ -1,9 +1,10 @@
-1 支持python3.5以上
+1 support over python3.5
 
-2 接口openncc.py文件，库文件_openncc.so
+2 python interface file openncc.py，python run shared file _openncc.so
 
-3 测试例子参考hello_ncc.py
+3 example file hello_ncc.py
 
-4 测试运行 python3 hello_ncc.py
+4 run method: sudo python3 hello_ncc.py
 
-
+and also we support human_pose_estimation example,just print the output data
+when run : sudo python3 hello_human.py

@@ -62,7 +62,7 @@ Metadata Output Parsing:
 | |
 |---------------|
 #endif
-void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnParm1,NetworkPar1 *nnParm2, char *nnret, float min_score)
+void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnParm1,Network2Par *nnParm2, char *nnret, float min_score)
 {
 	cv::Mat yuvImg;
 	yuvImg.create(h * 3 / 2, w, CV_8UC1);
@@ -72,22 +72,25 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
     int firstModelOutputSize;
     int secondModelOutputSize;
 
-	/* 获取模型输出size */
+
+	/* Get model output size */
 	memcpy(outputSize, nnret, sizeof(outputSize));
 	firstModelOutputSize        = outputSize[0];
 	secondModelOutputSize   = outputSize[1];
 //	printf("oft %d %d\n",  outputSize[0],  outputSize[1]);
 
-    // 获取一级模型memdata偏移地址
+    // Get the offset address of the first-level model memdata 
 	uint16_t* detMetadata          = (uint16_t*)((char*)nnret +sizeof(outputSize)) ;
-    // 获取二级模型memdata偏移地址
+    // Get the offset address of the secondary model memdata
 	char * firstOutput  = (char*)nnret +sizeof(outputSize) + firstModelOutputSize;
+    //printf("\n\n\nfirstModelOutputSize is %d\n",firstModelOutputSize);
+    //printf("\nsecondModelOutputSize is %d\n\n\n",secondModelOutputSize);
 
 	/* YUV420P-->RGB */
 	yuvImg.data = (unsigned char*)data;
 	cv::cvtColor(yuvImg, outgoingImage, CV_YUV2BGR_I420);
 
-	/* 获取算法的fov */
+	/* get Algorithm  fov */
 	oftX = nnParm1->startX;
 	oftY = nnParm1->startY;
 	disW = nnParm1->endX - nnParm1->startX;
@@ -100,6 +103,7 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
         float conf        =  (float)f16Tof32(detMetadata[i*7+2]);
         float x0, x1, y0, y1;
 
+
 		if (image_id < 0) {
 //			printf("image_id %d, %d\n",image_id, i);
 			break;
@@ -110,18 +114,18 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
 		x1 = f16Tof32(detMetadata[i*7+5]);
 		y1 = f16Tof32(detMetadata[i*7+6]);
 
-		/* 不处理无效数据，
-		 * 低于执行度，
-		 * 无效label的数据 */
-        if(  (coordinate_is_valid(x0, y0, x1, y1) ==0 )\
-            ||(conf<nnParm2->minConf)\
-            ||(nnParm2->labelMask[label] == 0)
-           )
+		/* Do not display boxes with invalid data or too low probability */
+        if ((coordinate_is_valid(x0, y0, x1, y1) ==0 )
+            ||(conf<nnParm2->minConf)
+           ||(nnParm2->labelMask[label] == 0))
+           
 		{
 			continue;
 		}
+        else
+        {printf("\n\nget object\n\n");}
 
-        /* 画识别的框 */
+        /* Draw the recognized face frame */
         cv::Rect box;
         box.x = x0 * disW + oftX;
         box.y = y0 * disH  + oftY ;
@@ -133,7 +137,7 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
 
         int regRet[88];
 
-        // 获取二级模型memdata
+        // Get secondary model memdata
         uint16_t* regMetadata = (uint16_t*)(firstOutput + secondModelOutputSize * i);
         //            printf("\n\nret:");
         for(int j=0;j<sizeof(regRet)/sizeof(regRet[0]);j++)
@@ -173,9 +177,10 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
         origin.x = box.x;
         origin.y = box.y-20 ;
         cv::putText(outgoingImage, result, origin, cv::FONT_HERSHEY_COMPLEX, 1.1,  cv::Scalar(0, 0, 255), 2, 8, 0);
-	}
+    }
+    
 
-	/* 算法有效区域 */
+	/* Algorithm effective area */
 	if(nn_fov_show)
 	{
 		cv::Rect boxNN;
@@ -191,7 +196,7 @@ void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float sc
 	}
 
 	Mat showImage;
-	/* 缩放显示 */
+	/* Zoom display */
 	resize(outgoingImage,showImage,Size(outgoingImage.cols*scale,outgoingImage.rows*scale),0,0,INTER_LINEAR);
 	cv::imshow(name, showImage);
 	cv::waitKey(1);

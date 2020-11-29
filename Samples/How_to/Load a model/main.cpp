@@ -30,8 +30,8 @@ int main(void)
     CameraInfo cam_info;
     memset(&cam_info, 0, sizeof(cam_info));
 
-    //1.加载固件
-    ret = load_fw("./fw/flicRefApp.mvcmd");
+    //1.Load firmware
+    ret = load_fw("./moviUsbBoot","./fw/flicRefApp.mvcmd");
     if (ret < 0)
     {
         printf("lowd firmware error! return \n");
@@ -39,7 +39,7 @@ int main(void)
     }
     printf("usb sersion:%d \n", get_usb_version());
 
-    //2. 获取camera模式支持列表
+    //2. Get the current camera mode support list
     SensorModesConfig cameraCfg;
     SensorModesList list;
     camera_control_get_features(&list);
@@ -54,12 +54,12 @@ int main(void)
                 features.maxEXP, features.minGain, features.maxGain);
     }
 
-    //3. 选择camera工作模式
+    //3. Select camera working mode
     int sensorModeId = 0; //0:1080P, 1:4K
     camera_select_sensor(sensorModeId);
     memcpy(&cameraCfg, &list.mode[sensorModeId], sizeof(cameraCfg)); //select camera info
 
-    //4. 配置设备资源
+    //4. Configure device resoures
     cam_info.imageWidth   = cameraCfg.camWidth;
     cam_info.imageHeight  = cameraCfg.camHeight;
     cam_info.isOutputYUV  = 1;
@@ -67,13 +67,13 @@ int main(void)
     cam_info.isOutputH26X = 1;
    cam_info.mode         = ENCODE_H264_MODE;
 
-    //5. ncc配置相关配置
-   //5.1 算法有效区配置，左顶点、右底点
+    //5. NCC configure related parameters
+   //5.1 Configure the effective area of the algorithm
     cam_info.startX      = 0;
     cam_info.startY      = 0;
     cam_info.endX        = cameraCfg.camWidth;
     cam_info.endY        = cameraCfg.camHeight;
-    //5.2 图像预处理初始化
+    //5.2 Image preprocessing parameter initialization
     cam_info.inputDimWidth  = 300;
     cam_info.inputDimHeight = 300;
     cam_info.inputFormat    = IMG_FORMAT_BGR_PLANAR;
@@ -81,17 +81,17 @@ int main(void)
     cam_info.meanValue[1]   = 0;
     cam_info.meanValue[2]   = 0;
     cam_info.stdValue       = 1;
-    // 5.2 算法blob文件保存路径
-    char *blob = "./blob/FD.blob";
+    // 5.2 Blob file save path of the algorithm
+    const char *blob = "./blob/FD.blob";
 
-    //6. sdk初始化
+    //6. sdk initialization
     ret = sdk_init(NULL, NULL, (char*) blob, &cam_info, sizeof(cam_info));
     printf("sdk_init %d\n", ret);
     if (ret < 0)
         return -1;
 
-    //7. 输出配置
-    camera_yuv420_out(YUV420_OUT_CONTINUOUS);
+    //7. Configure output
+    camera_video_out(YUV420p,VIDEO_OUT_CONTINUOUS);
 
 
     char *recv_data     = (char*) malloc(sizeof(frameSpecOut) + cameraCfg.camWidth * cameraCfg.camHeight * 3 / 2);
@@ -108,7 +108,7 @@ int main(void)
         float min_score = 0.6;
         char *yuv420p, *memedata;
 
-        //阻塞读取yuv420数据
+        //Block reading yuv420 data
         max_read_size  = sizeof(frameSpecOut)+ cameraCfg.camWidth * cameraCfg.camHeight * 3 / 2;
         if (read_yuv_data(recv_data, &max_read_size, true) < 0)
         {
@@ -118,7 +118,7 @@ int main(void)
         memcpy(&hdr, recv_data, sizeof(frameSpecOut));
         printf("yuvhdr :type %2d,seqNo:%-6d,size %d\n", hdr.type, hdr.seqNo,hdr.size);
 
-        //非阻塞读取metedata数据
+        //Non-blocking read metedata data
         max_read_size = 512*1024;
         memset(recv_metedata, 0, max_read_size);
         if (read_meta_data(recv_metedata, &max_read_size, false) == 0)
@@ -127,11 +127,11 @@ int main(void)
             printf("metehdr:type:%2d,seqNo:%-6d,size %d, NCC_T:(%dMS)\n", hdr.type, hdr.seqNo,hdr.size, hdr.res[0]);
         }
 
-        //提取YUV数据和metedata数据
+        //Get YUV data and metedata data
         yuv420p  = (char*) recv_data + sizeof(frameSpecOut);
-        memedata = (char*) recv_metedata + sizeof(frameSpecOut);
+        memedata = (char*) recv_metedata + sizeof(frameSpecOut)+16*sizeof(int);
 
-        //测试显示
+        //Test display
         sprintf(src, "FD_video_%dx%d@%dfps(scale:%d%%)", cameraCfg.camWidth,
                 cameraCfg.camHeight, cameraCfg.camFps, (int) (100 * scale));
         obj_show_img_func(yuv420p, cameraCfg.camWidth, cameraCfg.camHeight,scale, src, 1, &cam_info,memedata , min_score);

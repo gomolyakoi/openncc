@@ -42,7 +42,7 @@ static int coordinate_is_valid(float x1, float y1, float x2, float y2)
     return 1;
 }
 
-void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnParm1, NetworkPar1 *nnParm2, char *nnret,float minConf)
+void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnParm1, Network2Par *nnParm2, char *nnret,float minConf)
 {
 	cv::Mat yuvImg;
 	yuvImg.create(h * 3 / 2, w, CV_8UC1);
@@ -54,20 +54,20 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
     int firstModelOutputSize;
     int secondModelOutputSize;
 
-    /* 获取模型输出size */
+    /* Get model output size */
     memcpy(outputSize, nnret, sizeof(outputSize));
     firstModelOutputSize        = outputSize[0];
     secondModelOutputSize   = outputSize[1];
 
-    // 获取一级模型memdata偏移地址
+    // Get the offset address of the first-level model memdata 
     uint16_t* detMetadata          = (uint16_t*)((char*)nnret +sizeof(outputSize)) ;
-    // 获取二级模型memdata偏移地址
+    // Get the offset address of the secondary model memdata
     char * firstOutput  = (char*)nnret +sizeof(outputSize) + firstModelOutputSize;
 	/* YUV420P-->RGB */
 	yuvImg.data = (unsigned char*)data;
 	cv::cvtColor(yuvImg, outgoingImage, CV_YUV2BGR_I420);
 
-	/* 获取算法的fov */
+	/* get Algorithm  fov */
 	oftX = nnParm1->startX;
 	oftY = nnParm1->startY;
 	disW = nnParm1->endX - nnParm1->startX;
@@ -90,13 +90,13 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
 		y0 = f16Tof32(detMetadata[i*7+4]);
 		x1 = f16Tof32(detMetadata[i*7+5]);
 		y1 = f16Tof32(detMetadata[i*7+6]);
-		/* 不显示无效数据或者概率太低的框 */
+		/* Do not display boxes with invalid data or too low probability */
         if( (coordinate_is_valid(x0, y0, x1, y1) ==0 )|| (conf < minConf))
 		{
 			continue;
 		}
 
-		/* 画识别的人脸框 */
+		/* Draw the recognized face frame */
 		cv::Rect box;
 		box.x = x0 * disW + oftX;
 		box.y = y0 * disH + oftY;
@@ -113,7 +113,7 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
 		cv::putText(outgoingImage, result, origin, cv::FONT_HERSHEY_COMPLEX, 1,  cv::Scalar(255, 255, 128), 1, 8, 0);
 	}
 
-	/* 算法有效区域 */
+	/* Algorithm effective area */
 	if(nn_fov_show)
 	{
 		cv::Rect boxNN;
@@ -129,7 +129,7 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
 	}
 
 	Mat showImage;
-	/* 缩放显示 */
+	/* Zoom display */
 	resize(outgoingImage,showImage,Size(outgoingImage.cols*scale,outgoingImage.rows*scale),0,0,INTER_LINEAR);
 	cv::imshow(name, showImage);
 	cv::waitKey(1);

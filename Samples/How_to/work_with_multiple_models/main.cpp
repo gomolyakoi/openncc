@@ -22,59 +22,59 @@ extern "C" int gettimeofday(struct timeval *tp, void *tzp);
 #endif
 
 
-//////////////////////////////////////测试用例//////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #define     TEST_FACE_DETCTION_ADAS_0001                                0
 #define     TEST_FACE_DETCTION_RETAIL_0004                              1
 #define     TEST_LICENSE_PLATE_RECOGNITION_BARRIER_0001      2
 #define     TEST_PERSON_DETECTION_RETAIL_0002                        3
-#define     TEST_OBJ_CLS                                                               4
+#define     TEST_OBJ_CLS                                                                4
 
 #define    CUR_TEST_CASE     TEST_LICENSE_PLATE_RECOGNITION_BARRIER_0001
 
 ////////////////////////////////////////////////////////////////////////
 
-void  cls_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnparm,NetworkPar1 *nnParm2, char *nnret,float conf);
-void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnparm,NetworkPar1 *nnParm2, char *nnret,float conf);
-void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnParm1,NetworkPar1 *nnParm2, char *nnret, float conf);
-typedef void  (*analyzeMetedata)(void *data, int w, int h, float scale, char *name, int nn_fov_show, NetworkPar0 *nnparm, NetworkPar1 *nnParm2, char *nnret,float conf);
+void  cls_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm,Network2Par *nnParm2, char *nnret,float conf);
+void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm,Network2Par *nnParm2, char *nnret,float conf);
+void  vehicle_license_plate_detection_barrier(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnParm1,Network2Par *nnParm2, char *nnret, float conf);
+typedef void  (*analyzeMetedata)(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, Network2Par *nnParm2, char *nnret,float conf);
 
 extern "C" void os_sleep(int ms);
 
-/* 第一级模型默认参数 */
-static NetworkPar0 cnn1PrmSet =
+/* Default parameters of the first level model */
+static Network1Par cnn1PrmSet =
 {
-    imageWidth:-1, imageHeight:-1,                     /* 动态获取 */
-    startX:-1, startY:-1,                                          /* 根据获取的sensor分辨率设置 */
-    endX:-1,endY: -1,                                            /*  根据获取的sensor分辨率设置 */
-    inputDimWidth:-1, inputDimHeight:-1,            /* 根据获取的模型参数设置 */
-    inputFormat:IMG_FORMAT_BGR_PLANAR,      /*  默认为BRG输入 */
+    imageWidth:-1, imageHeight:-1,                     /* Dynamic acquisition */
+    startX:-1, startY:-1,                                          /* Set according to the acquired sensor resolution */
+    endX:-1,endY: -1,                                            /*  Set according to the acquired sensor resolution */
+    inputDimWidth:-1, inputDimHeight:-1,            /* Set according to the acquired model parameters */
+    inputFormat:IMG_FORMAT_BGR_PLANAR,      /*  The default input is BRG  */
     meanValue:{0,0,0},
     stdValue:1,
-    isOutputYUV:1,                                               /*打开YUV420输出功能*/
-    isOutputH26X:1,                                             /*打开H26X编码功能*/
-    isOutputJPEG:1,                                              /*打开MJPEG编码功能*/
-    mode:ENCODE_H264_MODE,                          /* 使用H264编码格式 */
-    extInputs:{0},                                                  /* model多输入，第二个输入参数 */
-    modelCascade:0 ,                                           /* 默认不级联下一级模型 */
+    isOutputYUV:1,                                               /*Turn on YUV420 output function*/
+    isOutputH26X:1,                                             /*Turn on H26X encoding function*/
+    isOutputJPEG:1,                                              /*Turn on the MJPEG encoding function*/
+    mode:ENCODE_H264_MODE,                          /* Use H264 encoding format */
+    extInputs:{0},                                                  /* Model multi-input, the second input parameter */
+    modelCascade:0 ,                                           /* The next level model is not cascaded by default */
     inferenceACC:0,
 };
 
-/* 第二级模型默认参数 */
-static NetworkPar1 cnn2PrmSet =
+/* Default parameters of the second level model */
+static Network2Par cnn2PrmSet =
 {
     startXAdj:0,
     startYAdj:0,
     endXAdj:0,
     endYAdj:0,
-    labelMask:{0},                                                 /* 需要处理的label掩码，如果对应位置至1才会处理 */
-    minConf: 0.99,                                                /* 检测目标的置信度大于该值才会处理 */
-    inputDimWidth:-1, inputDimHeight:-1,            /* 根据获取的模型参数设置 */
-    inputFormat:IMG_FORMAT_BGR_PLANAR,      /*  默认为BRG输入 */
+    labelMask:{0},                                                 /* The label mask to be processed, will be processed if the corresponding position is 1 */
+    minConf: 0.99,                                                /* The detection target's confidence level is greater than this value before processing */
+    inputDimWidth:-1, inputDimHeight:-1,            /* Set according to the acquired model parameters */
+    inputFormat:IMG_FORMAT_BGR_PLANAR,      /*  The default input is BRG */
     meanValue:{0,0,0},
     stdValue:1,
-    extInputs:{0},                                                  /* model多输入，第二个输入参数 */
-    modelCascade:0                                             /* 默认不级联下一级模型 */
+    extInputs:{0},                                                  /* Model multi-input, the second input parameter */
+    modelCascade:0                                             /* The next level model is not cascaded by default */
 };
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -85,8 +85,8 @@ int main(void)
     CameraInfo cam_info;
     memset(&cam_info, 0, sizeof(cam_info));
 
-    //1.加载固件
-    ret = load_fw("./fw/flicRefApp.mvcmd");
+    //1.load firmware
+    ret = load_fw("./moviUsbBoot","./fw/flicRefApp.mvcmd");
     if (ret < 0)
     {
         printf("lowd firmware error! return \n");
@@ -94,7 +94,7 @@ int main(void)
     }
     printf("usb sersion:%d \n", get_usb_version());
 
-    //2. 获取camera模式支持列表
+    //2. Get the current camera mode support list
     SensorModesConfig cameraCfg;
     SensorModesList list;
     camera_control_get_features(&list);
@@ -109,17 +109,17 @@ int main(void)
                 features.maxEXP, features.minGain, features.maxGain);
     }
 
-    //3. 选择camera工作模式
+    //3. Select camera working mode
     int sensorModeId = 0; //0:1080P, 1:4K
     camera_select_sensor(sensorModeId);
     memcpy(&cameraCfg, &list.mode[sensorModeId], sizeof(cameraCfg)); //select camera info
     cnn1PrmSet.imageWidth  = cameraCfg.camWidth;
     cnn1PrmSet.imageHeight = cameraCfg.camHeight;
 
-    //4. 配置模型参数
-    //////////////////////////////////////模型参数初始化 start///////////////////////////////////////////////////
+    //4. Configure device resoures
+    //////////////////////////////////////Model parameter initialization start///////////////////////////////////////////////////
  #if (CUR_TEST_CASE == TEST_FACE_DETCTION_ADAS_0001)
-     //////////单模型demo/////////
+     //////////single model demo/////////
      cnn1PrmSet.startX      = 0;
      cnn1PrmSet.startY      = 0;
      cnn1PrmSet.endX        = cameraCfg.camWidth;
@@ -128,12 +128,12 @@ int main(void)
      cnn1PrmSet.inputDimHeight = 384;
      /*URL:      https://docs.openvinotoolkit.org/2019_R1.1/_face_detection_adas_0001_description_face_detection_adas_0001.html
      */
-     char *blob  = "./blob/2019.1/face-detection-adas-0001/face-detection-adas-0001.blob";
+     char *blob  = "./blob/face-detection-adas-0001.blob";
      char *blob2 = NULL;
      analyzeMetedata fun = obj_show_img_func;
      conf = 0.8;
  #elif  (CUR_TEST_CASE == TEST_FACE_DETCTION_RETAIL_0004)
-     //////////单模型demo/////////
+     //////////single model demo/////////
       cnn1PrmSet.startX      = 0;
       cnn1PrmSet.startY      = 0;
       cnn1PrmSet.endX        = cameraCfg.camWidth;
@@ -141,13 +141,13 @@ int main(void)
       cnn1PrmSet.inputDimWidth  = 300;
       cnn1PrmSet.inputDimHeight = 300;
 
-      char *blob  = "./blob/2019.1/face-detection-retail-0004/face-detection-retail-0004.blob";
+      char *blob  = "./blob/face-detection-retail-0004.blob";
       char *blob2 = NULL;
       analyzeMetedata fun = obj_show_img_func;
       conf = 0.8;
 
  #elif  (CUR_TEST_CASE == TEST_OBJ_CLS)
-     //////////单模型demo/////////
+     //////////single model demo/////////
       cnn1PrmSet.startX      = 0;
       cnn1PrmSet.startY      = 0;
       cnn1PrmSet.endX        = cameraCfg.camWidth;
@@ -155,40 +155,40 @@ int main(void)
       cnn1PrmSet.inputDimWidth  = 300;
       cnn1PrmSet.inputDimHeight = 300;
 
-      char *blob  = "./blob/2019.1/object_classification/object_classification.blob";
+      char *blob  = "./blob/object_classification.blob";
       char *blob2 = NULL;
       analyzeMetedata fun = cls_show_img_func;
       conf = 0.7;
 
  #elif  (CUR_TEST_CASE == TEST_LICENSE_PLATE_RECOGNITION_BARRIER_0001)
-     //////////2级模型demo/////////
-     // 4. 1 第一级模型初始化初始化
+     ///////////////////
+     // 4.1 Initialization of the first level model
      cnn1PrmSet.startX      = 0;
      cnn1PrmSet.startY      = 0;
      cnn1PrmSet.endX        = cameraCfg.camWidth;
      cnn1PrmSet.endY        = cameraCfg.camHeight;
      cnn1PrmSet.inputDimWidth  = 300;
      cnn1PrmSet.inputDimHeight = 300;
-     /* 级联下一级模型 */
+     /* Cascade next level model */
      cnn1PrmSet.modelCascade = 1;
 
-     //4.2 第二级模型初始化
+     //4.2 Second-level model initialization
      if(cnn1PrmSet.modelCascade !=0)
      {
-         /* 基于第一级的检测结果，适当微调第一级的检测坐标，有利于识别 */
+         /* Based on the detection results of the first level, appropriately fine-tune the detection coordinates of the first level to facilitate recognition */
          if(1)
          {
              /*
-              *起点向左上方微调（startXAdj，startYAdj ）
-              *底点向右下方微调（endXAdj，endYAdj） */
+              *Fine-tune the starting point to the upper left（startXAdj，startYAdj ）
+              *The bottom point is fine-tuned to the bottom right（endXAdj，endYAdj） */
              cnn2PrmSet.startXAdj  = -5;
              cnn2PrmSet.startYAdj  = -5;
              cnn2PrmSet.endXAdj   = 5;
              cnn2PrmSet.endYAdj   = 5;
          }
 
-         cnn2PrmSet.minConf        = 0.7;  // 置信度设置，第一级目标检测大于这个值，才进入第二级模型处理
-         cnn2PrmSet.labelMask[2] = 1;     // 车牌 label id = 2，车辆 label id = 1, 只处理id=2
+         cnn2PrmSet.minConf        = 0.7;  //Confidence level setting, the first level target detection is greater than this value before entering the second level model processing
+         cnn2PrmSet.labelMask[2] = 1;     // License plate label id = 2，vehicle label id = 1, only handle id=2
 
          /*name1: "data" , shape: [1x3x24x94] - An input image in following format [1xCxHxW]. Expected color order is BGR.*/
          cnn2PrmSet.inputDimWidth  = 94;
@@ -196,7 +196,7 @@ int main(void)
          /*
           *URL:  https://docs.openvinotoolkit.org/2019_R1.1/_license_plate_recognition_barrier_0001_description_license_plate_recognition_barrier_0001.html
           * name2: "seq_ind" , shape: [88,1] - An auxiliary blob that is needed for correct decoding. Set this to [0, 1, 1, ..., 1]. */
-         //多输入初始化，转换成FP16
+         //Multi-input initialization, converted to FP16
          uint16_t *p = (uint16_t *)cnn2PrmSet.extInputs;
          p[0] = (uint16_t)f32Tof16(0);
          for(int i=1;i<88;i++)
@@ -205,8 +205,8 @@ int main(void)
          }
      }
 
-     char *blob =   "./blob/2019.1/vehicle-license-plate-detection-barrier-0106/vehicle-license-plate-detection-barrier-0106.blob";
-     char *blob2 = "./blob/2019.1/license-plate-recognition-barrier-0001/license-plate-recognition-barrier-0001.blob";
+     const char *blob =   "./blob/vehicle-license-plate-detection-barrier-0106.blob";
+     const char *blob2 = "./blob/license-plate-recognition-barrier-0001.blob";
      analyzeMetedata fun = vehicle_license_plate_detection_barrier;
      conf =  cnn2PrmSet.minConf;
 
@@ -234,7 +234,7 @@ int main(void)
       p[oft++] = f32Tof16(1.0*992/(cnn1PrmSet.endX -cnn1PrmSet.startX ));
       p[oft++] = f32Tof16(1.0*544/(cnn1PrmSet.endY -cnn1PrmSet.startY ));
 
-      char *blob  = "./blob/2019.1/person-detection-retail-0002/person-detection-retail-0002.blob";
+      char *blob  = "./blob/person-detection-retail-0002.blob";
       char *blob2 = NULL;
       analyzeMetedata fun = obj_show_img_func;
       conf = 0.4;
@@ -242,18 +242,21 @@ int main(void)
  //     "TEST_CASE definition error "
  #endif
 
-     //////////////////////////////////////模型参数初始化 end///////////////////////////////////////////////////
-     //5. sdk初始化
-     ret = sdk_init(0,0,\
-             blob,  &cnn1PrmSet, sizeof(cnn1PrmSet), \
+     //////////////////////////////////////Model parameter initialization end///////////////////////////////////////////////////
+     //5. sdk initialization
+     ret = sdk_net2_init(0,0,
+             blob,  &cnn1PrmSet, sizeof(cnn1PrmSet), 
              blob2,  &cnn2PrmSet, sizeof(cnn2PrmSet));
 
-    //6. 输出配置
-    camera_yuv420_out(YUV420_OUT_CONTINUOUS);
-//    camera_h26x_out(H26X_OUT_ENABLE);
-//    camera_mjpeg_out(MJPEG_OUT_CONTINUOUS);
+       
 
-    //////////////////////////////////////////测试读取/////////////////////////////////////////////////
+    //6. configure output
+    camera_video_out(YUV420p,VIDEO_OUT_CONTINUOUS);
+    //camera_yuv420_out(YUV420_OUT_CONTINUOUS);
+//    camera_h26x_out(H26X_OUT_ENABLE);
+ //  camera_mjpeg_out(MJPEG_OUT_CONTINUOUS);
+
+    //////////////////////////////////////////read test/////////////////////////////////////////////////
     char *recvImageData     = (char*) malloc(sizeof(frameSpecOut) + cameraCfg.camWidth * cameraCfg.camHeight * 3 / 2);
     int  meteDataSize  = 5*1024*1024;
     char *recvMetaData = (char*) malloc(meteDataSize);
@@ -267,7 +270,7 @@ int main(void)
         int maxReadSize;
         char *yuv420p, *metaData;
 
-        //阻塞读取yuv420数据
+        //Block reading yuv420 data
         maxReadSize  = sizeof(frameSpecOut)+ cameraCfg.camWidth * cameraCfg.camHeight * 3 / 2;
         if (read_yuv_data(recvImageData, &maxReadSize, true) < 0)
         {
@@ -276,20 +279,20 @@ int main(void)
         }
         memcpy(&hdr, recvImageData, sizeof(frameSpecOut));
 
-        //非阻塞读取metedata数据
+        //Non-blocking read metedata data
         maxReadSize = meteDataSize;
         if (read_meta_data(recvMetaData, &maxReadSize, false) == 0)
         {
             memcpy(&hdr, recvMetaData, sizeof(frameSpecOut));
         }
 
-        //提取YUV数据和metedata数据
+        //get YUV data and metedata data
         yuv420p  = (char*) recvImageData + sizeof(frameSpecOut);
         metaData = (char*) recvMetaData + sizeof(frameSpecOut);
 
-        //测试显示
+        //display test
         sprintf(src, "demo_video_%dx%d@%dfps(scale:%d%%)", cameraCfg.camWidth, cameraCfg.camHeight, cameraCfg.camFps,(int)(100*scale));
-         fun(yuv420p , cameraCfg.camWidth, cameraCfg.camHeight, scale,src, 0, &cnn1PrmSet,&cnn2PrmSet, metaData, conf);
+         fun(yuv420p , cameraCfg.camWidth, cameraCfg.camHeight, scale,src, 1, &cnn1PrmSet,&cnn2PrmSet, metaData, conf);
     }
     printf("exit test main....\n");
     sdk_uninit();

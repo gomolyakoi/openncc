@@ -55,7 +55,7 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
     yuvImg.data = (unsigned char*)data;
     cv::cvtColor(yuvImg, outgoing_img, CV_YUV2BGR_I420);
 
-    /* 获取算法的fov */
+    /* get algorithm fov */
     oft_x = nnparm->startX;
     oft_y = nnparm->startY;
     dis_w = nnparm->endX - nnparm->startX;
@@ -76,13 +76,13 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
         x1 = f16Tof32(cls_ret[i*7+5]);
         y1 = f16Tof32(cls_ret[i*7+6]);
 
-        /* 不显示无效数据或者概率太低的框 */
+        /* Not display boxes with invalid data or too low probability */
         if( (coordinate_is_valid(x0, y0, x1, y1) ==0 )|| (score < min_score))
         {
             continue;
         }
 
-        /* 画识别框 */
+        /* Draw recognition frame */
         cv::Rect box;
         box.x = x0 * dis_w + oft_x;
         box.y = y0 * dis_h + oft_y;
@@ -99,7 +99,7 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
         cv::putText(outgoing_img, result, origin, cv::FONT_HERSHEY_COMPLEX, 1,  cv::Scalar(255, 255, 128), 2*w/1920, 8, 0);
     }
 
-    /* 算法有效区域 */
+    /* Display algorithm effective area */
     if(nn_fov_show)
     {
         cv::Rect box_nn;
@@ -115,7 +115,7 @@ void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int n
     }
 
     Mat showImage;
-    /* 缩放显示 */
+    /* Zoom display */
     resize(outgoing_img,showImage,Size(outgoing_img.cols*scale,outgoing_img.rows*scale),0,0,INTER_LINEAR);
     cv::imshow(name, showImage);
     cv::waitKey(1);

@@ -34,7 +34,7 @@ void  opencv_show_img_func(void *data, int w, int h, float scale, char *name)
     cv::cvtColor(yuvImg, outgoing_img, CV_YUV2BGR_I420);
 
     Mat showImage;
-    /* 缩放显示 */
+    /* Zoom display */
     resize(outgoing_img,showImage,Size(outgoing_img.cols*scale,outgoing_img.rows*scale),0,0,INTER_LINEAR);
     cv::imshow(name, showImage);
     cv::waitKey(1);
