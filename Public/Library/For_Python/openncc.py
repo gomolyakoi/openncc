@@ -454,10 +454,6 @@ class frameSpecOut(_object):
     __swig_getmethods__["size"] = _openncc.frameSpecOut_size_get
     if _newclass:
         size = _swig_property(_openncc.frameSpecOut_size_get, _openncc.frameSpecOut_size_set)
-    __swig_setmethods__["temps"] = _openncc.frameSpecOut_temps_set
-    __swig_getmethods__["temps"] = _openncc.frameSpecOut_temps_get
-    if _newclass:
-        temps = _swig_property(_openncc.frameSpecOut_temps_get, _openncc.frameSpecOut_temps_set)
     __swig_setmethods__["res"] = _openncc.frameSpecOut_res_set
     __swig_getmethods__["res"] = _openncc.frameSpecOut_res_get
     if _newclass:
@@ -511,6 +507,10 @@ def sdk_init(cb: 'vscRecvCb', param: 'void *', blob_path: 'char const *', cam: '
     return _openncc.sdk_init(cb, param, blob_path, cam, cam_Len)
 sdk_init = _openncc.sdk_init
 
+def sdk_init_ex(cb: 'vscRecvCb', param: 'void *', blob_path: 'char const *', cam: 'Network1Par', cam_Len: 'int') -> "int":
+    return _openncc.sdk_init_ex(cb, param, blob_path, cam, cam_Len)
+sdk_init_ex = _openncc.sdk_init_ex
+
 def sdk_net2_init(cb: 'vscRecvCb', param: 'void *', blob_path: 'char const *', par: 'Network1Par', par_Len: 'int', blob2_path: 'char const *', par2: 'Network2Par', par2_Len: 'int') -> "int":
     return _openncc.sdk_net2_init(cb, param, blob_path, par, par_Len, blob2_path, par2, par2_Len)
 sdk_net2_init = _openncc.sdk_net2_init
@@ -526,6 +526,10 @@ get_usb_version = _openncc.get_usb_version
 def get_err_no() -> "int":
     return _openncc.get_err_no()
 get_err_no = _openncc.get_err_no
+
+def get_init_error(size: 'int') -> "char *":
+    return _openncc.get_init_error(size)
+get_init_error = _openncc.get_init_error
 
 def read_yuv_data(pbuf: 'char *', size: 'int *', blocked: 'int') -> "int":
     return _openncc.read_yuv_data(pbuf, size, blocked)
@@ -636,6 +640,56 @@ class SensorModesConfig(_object):
 SensorModesConfig_swigregister = _openncc.SensorModesConfig_swigregister
 SensorModesConfig_swigregister(SensorModesConfig)
 
+class Encrypt_t(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, Encrypt_t, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, Encrypt_t, name)
+    __repr__ = _swig_repr
+    __swig_setmethods__["key_version"] = _openncc.Encrypt_t_key_version_set
+    __swig_getmethods__["key_version"] = _openncc.Encrypt_t_key_version_get
+    if _newclass:
+        key_version = _swig_property(_openncc.Encrypt_t_key_version_get, _openncc.Encrypt_t_key_version_set)
+    __swig_setmethods__["lock"] = _openncc.Encrypt_t_lock_set
+    __swig_getmethods__["lock"] = _openncc.Encrypt_t_lock_get
+    if _newclass:
+        lock = _swig_property(_openncc.Encrypt_t_lock_get, _openncc.Encrypt_t_lock_set)
+    __swig_setmethods__["hw_config"] = _openncc.Encrypt_t_hw_config_set
+    __swig_getmethods__["hw_config"] = _openncc.Encrypt_t_hw_config_get
+    if _newclass:
+        hw_config = _swig_property(_openncc.Encrypt_t_hw_config_get, _openncc.Encrypt_t_hw_config_set)
+    __swig_setmethods__["accelerate_num"] = _openncc.Encrypt_t_accelerate_num_set
+    __swig_getmethods__["accelerate_num"] = _openncc.Encrypt_t_accelerate_num_get
+    if _newclass:
+        accelerate_num = _swig_property(_openncc.Encrypt_t_accelerate_num_get, _openncc.Encrypt_t_accelerate_num_set)
+    __swig_setmethods__["hw_version"] = _openncc.Encrypt_t_hw_version_set
+    __swig_getmethods__["hw_version"] = _openncc.Encrypt_t_hw_version_get
+    if _newclass:
+        hw_version = _swig_property(_openncc.Encrypt_t_hw_version_get, _openncc.Encrypt_t_hw_version_set)
+    __swig_setmethods__["hw_version_reserve"] = _openncc.Encrypt_t_hw_version_reserve_set
+    __swig_getmethods__["hw_version_reserve"] = _openncc.Encrypt_t_hw_version_reserve_get
+    if _newclass:
+        hw_version_reserve = _swig_property(_openncc.Encrypt_t_hw_version_reserve_get, _openncc.Encrypt_t_hw_version_reserve_set)
+    __swig_setmethods__["batch_num"] = _openncc.Encrypt_t_batch_num_set
+    __swig_getmethods__["batch_num"] = _openncc.Encrypt_t_batch_num_get
+    if _newclass:
+        batch_num = _swig_property(_openncc.Encrypt_t_batch_num_get, _openncc.Encrypt_t_batch_num_set)
+    __swig_setmethods__["reserve"] = _openncc.Encrypt_t_reserve_set
+    __swig_getmethods__["reserve"] = _openncc.Encrypt_t_reserve_get
+    if _newclass:
+        reserve = _swig_property(_openncc.Encrypt_t_reserve_get, _openncc.Encrypt_t_reserve_set)
+
+    def __init__(self):
+        this = _openncc.new_Encrypt_t()
+        try:
+            self.this.append(this)
+        except Exception:
+            self.this = this
+    __swig_destroy__ = _openncc.delete_Encrypt_t
+    __del__ = lambda self: None
+Encrypt_t_swigregister = _openncc.Encrypt_t_swigregister
+Encrypt_t_swigregister(Encrypt_t)
+
 class SensorModesList(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, SensorModesList, name, value)
@@ -730,6 +784,30 @@ camera_video_out = _openncc.camera_video_out
 def camera_select_sensor(sensorid: 'int') -> "int":
     return _openncc.camera_select_sensor(sensorid)
 camera_select_sensor = _openncc.camera_select_sensor
+
+def device_control_get_fw_version(fw: 'char *', len: 'int') -> "int":
+    return _openncc.device_control_get_fw_version(fw, len)
+device_control_get_fw_version = _openncc.device_control_get_fw_version
+
+def device_control_get_device_id(id: 'uint8_t *', size: 'int') -> "int":
+    return _openncc.device_control_get_device_id(id, size)
+device_control_get_device_id = _openncc.device_control_get_device_id
+
+def camera_get_ncc_id() -> "char *":
+    return _openncc.camera_get_ncc_id()
+camera_get_ncc_id = _openncc.camera_get_ncc_id
+
+def camera_get_fw_version() -> "char *":
+    return _openncc.camera_get_fw_version()
+camera_get_fw_version = _openncc.camera_get_fw_version
+
+def device_control_get_device_info(info: 'Encrypt_t') -> "int":
+    return _openncc.device_control_get_device_info(info)
+device_control_get_device_info = _openncc.device_control_get_device_info
+
+def device_control_set_device_info(info: 'Encrypt_t') -> "int":
+    return _openncc.device_control_set_device_info(info)
+device_control_set_device_info = _openncc.device_control_set_device_info
 
 _openncc.F32_RND_NEAREST_EVEN_swigconstant(_openncc)
 F32_RND_NEAREST_EVEN = _openncc.F32_RND_NEAREST_EVEN

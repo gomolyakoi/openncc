@@ -13,22 +13,28 @@
 #include "human_pose.hpp"
 
 namespace human_pose_estimation {
-	
 class NccDev;
-	
+
 class HumanPoseEstimator {
 public:
-    static const size_t keypointsNumber;
+    static const size_t keypointsNumber = 18;
 
     HumanPoseEstimator(const std::string& modelPath,
                        const std::string& targetDeviceName,
                        bool enablePerformanceReport = false);
-    std::vector<HumanPose> estimate(const cv::Mat& image);
+    std::vector<HumanPose> postprocessCurr();
+    void reshape(const cv::Mat& image);
+    void frameToBlobCurr(const cv::Mat& image);
+    void frameToBlobNext(const cv::Mat& image);
+    void startCurr();
+    void startNext();
+    bool readyCurr();
+    void swapRequest();
     ~HumanPoseEstimator();
-	
-		bool ReadVideo(cv::Mat& frame);
-private:		
-    void preprocess(const cv::Mat& image, float* buffer) const;
+//add by duke 2020.11.23
+    bool ReadVideo(cv::Mat& frame);
+private:
+    void preprocess(const cv::Mat& image, uint8_t* buffer) const;
     std::vector<HumanPose> postprocess(
             const float* heatMapsData, const int heatMapOffset, const int nHeatMaps,
             const float* pafsData, const int pafOffset, const int nPafs,
@@ -51,25 +57,25 @@ private:
     float foundMidPointsRatioThreshold;
     float minSubsetScore;
     cv::Size inputLayerSize;
+    cv::Size imageSize;
     int upsampleRatio;
-    InferenceEngine::InferencePlugin plugin;
+    InferenceEngine::Core ie;
+    std::string targetDeviceName;
     InferenceEngine::CNNNetwork network;
     InferenceEngine::ExecutableNetwork executableNetwork;
-    InferenceEngine::InferRequest request;
-    InferenceEngine::CNNNetReader netReader;
+    InferenceEngine::InferRequest::Ptr requestNext;
+    InferenceEngine::InferRequest::Ptr requestCurr;
     std::string pafsBlobName;
     std::string heatmapsBlobName;
     bool enablePerformanceReport;
     std::string modelPath;
-    	
-    NccDev* ncc;//add by duke 2020.10.12
+    NccDev* ncc;//add by duke 2020.11.23
 };
 
 //add by duke 2020.3.17
 #include "sdk.h"
 #include "cameraCtrl.h"
 #include "Fp16Convert.h"
-//#include <opencv2/imgproc/types_c.h>
 
 static  std::string fileNameNoExt(const std::string &filepath) {
     auto pos = filepath.rfind('.');
@@ -91,7 +97,7 @@ class NccDev{
 		    -1,  //startX
 			-1,  //startY                 
 			-1,   //endX
-			-1,   //endY                  
+			-1,   //endY                  #include <opencv2/highgui/highgui.hpp>
 			0,  //inputDimWidth
 			0,   //inputDimHeight                   /* <dim>300</dim>  <dim>300</dim> */
 			IMG_FORMAT_BGR_PLANAR,      //IMAGE_FORMAT   
@@ -99,14 +105,14 @@ class NccDev{
 			0,
 			0 ,
 			1,                         //stdValue
-		    1,                           /*´ò¿ªYUV420Êä³ö¹¦ÄÜ*/
-		    0,                           /*´ò¿ªH26X±àÂë¹¦ÄÜ*/
-		    0,                           /*´ò¿ªMJPEG±àÂë¹¦ÄÜ*/
-			ENCODE_H264_MODE,            /* Ê¹ÓÃH264±àÂë¸ñÊ½ */
+		    1,                           /*æ‰“å¼€YUV420è¾“å‡ºåŠŸèƒ½*/
+		    0,                           /*æ‰“å¼€H26Xç¼–ç åŠŸèƒ½*/
+		    0,                           /*æ‰“å¼€MJPEGç¼–ç åŠŸèƒ½*/
+			ENCODE_H264_MODE,            /* ä½¿ç”¨H264ç¼–ç æ ¼å¼ */
 		};
 
 		/*1 load firware*/
-		int ret = load_fw("./moviUsbBoot","./fw/flicRefApp.mvcmd");
+		int ret = load_fw("../fw/moviUsbBoot","../fw/flicRefApp.mvcmd");
 		if (ret < 0)
 		{
 			printf("init device error! return \n");
@@ -123,12 +129,12 @@ class NccDev{
                 mode[i].AFmode, mode[i].maxEXP, mode[i].minGain, mode[i].maxGain);
     }	    
 
-    int sensorModeId = 0; //1080PÄ£Ê½
-   // int sensorModeId = 1; //4KÄ£Ê½
+    int sensorModeId = 0; //1080Pæ¨¡å¼
+   // int sensorModeId = 1; //4Kæ¨¡å¼
     camera_select_sensor(sensorModeId);
    // memcpy(&cameraCfg, &list.mode[sensorModeId], sizeof(cameraCfg));//select camera info
 
-  // 3. Ëã·¨ÓĞĞ§ÇøÓò³õÊ¼ƒï 
+  // 3. ç®—æ³•æœ‰æ•ˆåŒºåŸŸåˆå§‹å†¿ 
   cam_info.imageWidth  = mode[sensorModeId].camWidth;
   cam_info.imageHeight = mode[sensorModeId].camHeight;
   cam_info.startX      = 0;//420;
@@ -143,7 +149,7 @@ class NccDev{
 		printf("xlink_init %d  cam %dX%d\n", ret,width,height);
 		if (ret < 0) return;
 			
- 	 //5. Êä³öÅäÖÃ
+ 	 //5. è¾“å‡ºé…ç½®
  		 camera_video_out(YUV420p,VIDEO_OUT_CONTINUOUS);
   };
 
@@ -162,6 +168,7 @@ class NccDev{
 		yuvImg.data = (unsigned char*)yuv420p + sizeof(frameSpecOut);
 
 		cv::cvtColor(yuvImg, frame, CV_YUV2BGR_I420);
+		//printf("read nv12 video success!\n");
 		return true;
 	};		
 	
@@ -189,3 +196,4 @@ class NccDev{
 };
 //add end
 }  // namespace human_pose_estimation
+

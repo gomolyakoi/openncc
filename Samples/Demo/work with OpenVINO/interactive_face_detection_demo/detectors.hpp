@@ -24,7 +24,6 @@
 #include <samples/slog.hpp>
 
 #include <ie_iextension.h>
-#include <ext_list.hpp>
 
 #include <opencv2/opencv.hpp>
 
@@ -32,7 +31,6 @@
 
 struct BaseDetection {
     InferenceEngine::ExecutableNetwork net;
-    InferenceEngine::InferencePlugin * plugin;
     InferenceEngine::InferRequest::Ptr request;
     std::string topoName;
     std::string pathToModel;
@@ -44,7 +42,7 @@ struct BaseDetection {
     mutable bool _enabled;
     const bool doRawOutputMessages;
 
-    BaseDetection(std::string topoName,
+    BaseDetection(const std::string &topoName,
                   const std::string &pathToModel,
                   const std::string &deviceForInference,
                   int maxBatch, bool isBatchDynamic, bool isAsync,
@@ -53,11 +51,11 @@ struct BaseDetection {
     virtual ~BaseDetection();
 
     InferenceEngine::ExecutableNetwork* operator ->();
-    virtual InferenceEngine::CNNNetwork read() = 0;
+    virtual InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) = 0;
     virtual void submitRequest();
     virtual void wait();
     bool enabled() const;
-    void printPerformanceCounts();
+    void printPerformanceCounts(std::string fullDeviceName);
 };
 
 struct FaceDetection : BaseDetection {
@@ -69,17 +67,19 @@ struct FaceDetection : BaseDetection {
 
     std::string input;
     std::string output;
+    std::string labels_output;
     double detectionThreshold;
     int maxProposalCount;
     int objectSize;
     int enquedFrames;
     float width;
     float height;
+    float network_input_width;
+    float network_input_height;
     float bb_enlarge_coefficient;
     float bb_dx_coefficient;
     float bb_dy_coefficient;
     bool resultsFetched;
-    std::vector<std::string> labels;
     std::vector<Result> results;
 
     FaceDetection(const std::string &pathToModel,
@@ -89,7 +89,7 @@ struct FaceDetection : BaseDetection {
                   float bb_enlarge_coefficient, float bb_dx_coefficient,
                   float bb_dy_coefficient);
 
-    InferenceEngine::CNNNetwork read() override;
+    InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) override;
     void submitRequest() override;
 
     void enqueue(const cv::Mat &frame);
@@ -137,7 +137,7 @@ struct NccFaceDetection : FaceDetection {
 		};
 
 		/*1 load firware*/
-		int ret = load_fw("./moviUsbBoot","./fw/flicRefApp.mvcmd");
+		int ret = load_fw("../fw/moviUsbBoot","../fw/flicRefApp.mvcmd");
 		if (ret < 0)
 		{
 			printf("init device error! return \n");
@@ -345,7 +345,7 @@ struct AgeGenderDetection : BaseDetection {
                        int maxBatch, bool isBatchDynamic, bool isAsync,
                        bool doRawOutputMessages);
 
-    InferenceEngine::CNNNetwork read() override;
+    InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) override;
     void submitRequest() override;
 
     void enqueue(const cv::Mat &face);
@@ -371,7 +371,7 @@ struct HeadPoseDetection : BaseDetection {
                       int maxBatch, bool isBatchDynamic, bool isAsync,
                       bool doRawOutputMessages);
 
-    InferenceEngine::CNNNetwork read() override;
+    InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) override;
     void submitRequest() override;
 
     void enqueue(const cv::Mat &face);
@@ -388,7 +388,7 @@ struct EmotionsDetection : BaseDetection {
                       int maxBatch, bool isBatchDynamic, bool isAsync,
                       bool doRawOutputMessages);
 
-    InferenceEngine::CNNNetwork read() override;
+    InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) override;
     void submitRequest() override;
 
     void enqueue(const cv::Mat &face);
@@ -409,7 +409,7 @@ struct FacialLandmarksDetection : BaseDetection {
                              int maxBatch, bool isBatchDynamic, bool isAsync,
                              bool doRawOutputMessages);
 
-    InferenceEngine::CNNNetwork read() override;
+    InferenceEngine::CNNNetwork read(const InferenceEngine::Core& ie) override;
     void submitRequest() override;
 
     void enqueue(const cv::Mat &face);
@@ -421,7 +421,7 @@ struct Load {
 
     explicit Load(BaseDetection& detector);
 
-    void into(InferenceEngine::InferencePlugin & plg, bool enable_dynamic_batch = false) const;
+    void into(InferenceEngine::Core & ie, const std::string & deviceName, bool enable_dynamic_batch = false) const;
 };
 
 class CallStat {

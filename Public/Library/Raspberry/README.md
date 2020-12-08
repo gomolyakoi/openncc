@@ -6,7 +6,7 @@ This directory include some library and bin file for RasBerry:
 because  RasBerry used linux OS,so we can develop refer to how_to_use_sdk.
 
 How to setup  envirment On RasBerry platform?
-1: copy from  openncc/Public/Library/For_C&C++/how_to_use_sdk to current 
+1: copy from  openncc/Public/Library/how_to_use_sdk to current 
 RasBerry directory  openncc/Public/Library/Raspberry
 
 2: replace library:

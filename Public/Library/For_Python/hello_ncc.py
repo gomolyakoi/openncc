@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import sys
@@ -42,6 +42,9 @@ def main():
 		sys.exit(1)
 
 	print("get usb %d sdk versin %s" % (ncc.get_usb_version() ,ncc.get_sdk_version()))
+	
+	print("get fw version: %s and ncc id %s" % (ncc.camera_get_fw_version() ,
+					ncc.camera_get_ncc_id()))
 		
 	sensors=ncc.CameraSensor()
 	sensor1 = ncc.SensorModesConfig()
@@ -78,7 +81,7 @@ def main():
 	cam_info.inputDimHeight =0
 	ncc.SetMeanValue(cam_info,0.0,0.0,0.0)
   
-	ret = ncc.sdk_init(None, None, "./blob/face-detection-retail-0004-fp16.blob",cam_info, struct.calcsize("13I4f")) #struct CameraInfo
+	ret = ncc.sdk_init(None, None, "./blob/2020.3/face-detection-retail-0004/face-detection-retail-0004.blob",cam_info, struct.calcsize("13I4f")) #struct CameraInfo
 	metasize=ncc.get_meta_size()
 	print("xlink_init ret=%d  %d" % (ret,metasize))
 	if (ret<0):

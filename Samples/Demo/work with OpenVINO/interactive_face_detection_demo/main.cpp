@@ -13,7 +13,6 @@
 #include <fstream>
 #include <random>
 #include <memory>
-#include <chrono>
 #include <vector>
 #include <string>
 #include <utility>
@@ -21,9 +20,11 @@
 #include <iterator>
 #include <map>
 #include <list>
+#include <set>
 
 #include <inference_engine.hpp>
 
+#include <monitors/presenter.h>
 #include <samples/ocv_common.hpp>
 #include <samples/slog.hpp>
 
@@ -33,18 +34,16 @@
 #include "visualizer.hpp"
 
 #include <ie_iextension.h>
-#include <ext_list.hpp>
 
 using namespace InferenceEngine;
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-using namespace cv;
+
 
 bool ParseAndCheckCommandLine(int argc, char *argv[]) {
     // ---------------------------Parsing and validating input arguments--------------------------------------
     gflags::ParseCommandLineNonHelpFlags(&argc, &argv, true);
     if (FLAGS_h) {
         showUsage();
+        showAvailableDevices();
         return false;
     }
     slog::info << "Parsing input parameters" << slog::endl;
@@ -86,110 +85,110 @@ int main(int argc, char *argv[]) {
         if (!(FLAGS_i == "cam" ? cap.open(0) : cap.open(FLAGS_i))) {
             throw std::logic_error("Cannot open input file or camera: " + FLAGS_i);
         }
-
+#endif
+        Timer timer;
+        // read input (video) frame
+        cv::Mat frame;
+#if   0 //edit by duke 2020.3.18
         if (!cap.read(frame)) {
             throw std::logic_error("Failed to get frame from cv::VideoCapture");
         }
+
+        const size_t width  = static_cast<size_t>(frame.cols);
+        const size_t height = static_cast<size_t>(frame.rows);
+
+
+        cv::VideoWriter videoWriter;
+        if (!FLAGS_o.empty()) {
+            videoWriter.open(FLAGS_o, cv::VideoWriter::fourcc('I', 'Y', 'U', 'V'), 25, cv::Size(width, height));
+        }
 #endif
         // ---------------------------------------------------------------------------------------------------
-        // --------------------------- 1. Loading plugin to the Inference Engine -----------------------------
-        std::map<std::string, InferencePlugin> pluginsForDevices;
-        std::vector<std::pair<std::string, std::string>> cmdOptions = {
-            {FLAGS_d, FLAGS_m}, {FLAGS_d_ag, FLAGS_m_ag}, {FLAGS_d_hp, FLAGS_m_hp},
-            {FLAGS_d_em, FLAGS_m_em}, {FLAGS_d_lm, FLAGS_m_lm}
+        // --------------------------- 1. Loading Inference Engine -----------------------------
+
+        Core ie;
+
+        std::set<std::string> loadedDevices;
+        std::pair<std::string, std::string> cmdOptions[] = {
+            {FLAGS_d, FLAGS_m},
+            {FLAGS_d_ag, FLAGS_m_ag},
+            {FLAGS_d_hp, FLAGS_m_hp},
+            {FLAGS_d_em, FLAGS_m_em},
+            {FLAGS_d_lm, FLAGS_m_lm}
         };
-	/*FaceDetection edit by duke 2020.3.18*/ 
-  	 NccFaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, FLAGS_t, FLAGS_r,
+	//edit by duke 2020.3.18
+        NccFaceDetection faceDetector(FLAGS_m, FLAGS_d, 1, false, FLAGS_async, FLAGS_t, FLAGS_r,
                                    static_cast<float>(FLAGS_bb_enlarge_coef), static_cast<float>(FLAGS_dx_coef), static_cast<float>(FLAGS_dy_coef));
         AgeGenderDetection ageGenderDetector(FLAGS_m_ag, FLAGS_d_ag, FLAGS_n_ag, FLAGS_dyn_ag, FLAGS_async, FLAGS_r);
         HeadPoseDetection headPoseDetector(FLAGS_m_hp, FLAGS_d_hp, FLAGS_n_hp, FLAGS_dyn_hp, FLAGS_async, FLAGS_r);
         EmotionsDetection emotionsDetector(FLAGS_m_em, FLAGS_d_em, FLAGS_n_em, FLAGS_dyn_em, FLAGS_async, FLAGS_r);
         FacialLandmarksDetection facialLandmarksDetector(FLAGS_m_lm, FLAGS_d_lm, FLAGS_n_lm, FLAGS_dyn_lm, FLAGS_async, FLAGS_r);
 
-        Timer timer;
-        // read input (video) frame
-        cv::Mat frame;
 	faceDetector.ReadVideo(frame);
-#if 1
-        const size_t width= static_cast<size_t>(frame.cols);
+        const size_t width  = static_cast<size_t>(frame.cols);
         const size_t height = static_cast<size_t>(frame.rows);
-#else
-	int width=0;
-	int height=0;
-	faceDetector.get_cam_size(width,height);//add by duke 2020.3.18
-#endif
-	std::cout<<"get ncc camera width="<<width<<" height="<<height<< std::endl;
 
         cv::VideoWriter videoWriter;
         if (!FLAGS_o.empty()) {
             videoWriter.open(FLAGS_o, cv::VideoWriter::fourcc('I', 'Y', 'U', 'V'), 25, cv::Size(width, height));
         }
+	//edit end
 
         for (auto && option : cmdOptions) {
             auto deviceName = option.first;
             auto networkName = option.second;
 
-            if (deviceName == "" || networkName == "") {
+            if (deviceName.empty() || networkName.empty()) {
                 continue;
             }
 
-            if (pluginsForDevices.find(deviceName) != pluginsForDevices.end()) {
+            if (loadedDevices.find(deviceName) != loadedDevices.end()) {
                 continue;
             }
-            slog::info << "Loading plugin " << deviceName << slog::endl;
-            InferencePlugin plugin = PluginDispatcher().getPluginByDevice(deviceName);
+            slog::info << "Loading device " << deviceName << slog::endl;
+            std::cout << ie.GetVersions(deviceName) << std::endl;
 
-            /** Printing plugin version **/
-            printPluginVersion(plugin, std::cout);
-
-            /** Loading extensions for the CPU plugin **/
+            /** Loading extensions for the CPU device **/
             if ((deviceName.find("CPU") != std::string::npos)) {
-                plugin.AddExtension(std::make_shared<Extensions::Cpu::CpuExtensions>());
 
                 if (!FLAGS_l.empty()) {
                     // CPU(MKLDNN) extensions are loaded as a shared library and passed as a pointer to base extension
                     auto extension_ptr = make_so_pointer<IExtension>(FLAGS_l);
-                    plugin.AddExtension(extension_ptr);
+                    ie.AddExtension(extension_ptr, "CPU");
                     slog::info << "CPU Extension loaded: " << FLAGS_l << slog::endl;
                 }
             } else if (!FLAGS_c.empty()) {
-                // Loading extensions for other plugins not CPU
-                plugin.SetConfig({{PluginConfigParams::KEY_CONFIG_FILE, FLAGS_c}});
+                // Loading extensions for GPU
+                ie.SetConfig({{PluginConfigParams::KEY_CONFIG_FILE, FLAGS_c}}, "GPU");
             }
-            pluginsForDevices[deviceName] = plugin;
+
+            loadedDevices.insert(deviceName);
         }
 
         /** Per-layer metrics **/
         if (FLAGS_pc) {
-            for (auto && plugin : pluginsForDevices) {
-                plugin.second.SetConfig({{PluginConfigParams::KEY_PERF_COUNT, PluginConfigParams::YES}});
-            }
+            ie.SetConfig({{PluginConfigParams::KEY_PERF_COUNT, PluginConfigParams::YES}});
         }
         // ---------------------------------------------------------------------------------------------------
 
         // --------------------------- 2. Reading IR models and loading them to plugins ----------------------
         // Disable dynamic batching for face detector as it processes one image at a time
-        Load(faceDetector).into(pluginsForDevices[FLAGS_d], false);
-        Load(ageGenderDetector).into(pluginsForDevices[FLAGS_d_ag], FLAGS_dyn_ag);
-        Load(headPoseDetector).into(pluginsForDevices[FLAGS_d_hp], FLAGS_dyn_hp);
-        Load(emotionsDetector).into(pluginsForDevices[FLAGS_d_em], FLAGS_dyn_em);
-        Load(facialLandmarksDetector).into(pluginsForDevices[FLAGS_d_lm], FLAGS_dyn_lm);
+        Load(faceDetector).into(ie, FLAGS_d, false);
+        Load(ageGenderDetector).into(ie, FLAGS_d_ag, FLAGS_dyn_ag);
+        Load(headPoseDetector).into(ie, FLAGS_d_hp, FLAGS_dyn_hp);
+        Load(emotionsDetector).into(ie, FLAGS_d_em, FLAGS_dyn_em);
+        Load(facialLandmarksDetector).into(ie, FLAGS_d_lm, FLAGS_dyn_lm);
         // ----------------------------------------------------------------------------------------------------
 
         // --------------------------- 3. Doing inference -----------------------------------------------------
         // Starting inference & calculating performance
         slog::info << "Start inference " << slog::endl;
-        if (!FLAGS_no_show) {
-            std::cout << "Press any key to stop" << std::endl;
-        }
 
         bool isFaceAnalyticsEnabled = ageGenderDetector.enabled() || headPoseDetector.enabled() ||
                                       emotionsDetector.enabled() || facialLandmarksDetector.enabled();
 
         std::ostringstream out;
         size_t framesCounter = 0;
-        bool frameReadStatus;
-        bool isLastFrame;
         int delay = 1;
         double msrate = -1;
         cv::Mat prev_frame, next_frame;
@@ -212,25 +211,34 @@ int main(int argc, char *argv[]) {
         faceDetector.enqueue(frame);
         faceDetector.submitRequest();
 
-	prev_frame = frame.clone();
+        prev_frame = frame.clone();
 
         // Reading the next frame
-       // frameReadStatus = cap.read(frame);  //edit by duke 2020.3,17
-	frameReadStatus=faceDetector.ReadVideo(frame);	
-       
+        //bool frameReadStatus = cap.read(frame);
+	bool frameReadStatus=faceDetector.ReadVideo(frame);	//edit by duke 2020.3,17
+
+        std::cout << "To close the application, press 'CTRL+C' here";
         if (!FLAGS_no_show) {
-            std::cout << "To close the application, press 'CTRL+C' or any key with focus on the output window" <<std::endl;
+            std::cout << " or switch to the output window and press Q or Esc";
         }
+        std::cout << std::endl;
+
+        const cv::Point THROUGHPUT_METRIC_POSITION{10, 45};
+
+       // cv::Size graphSize{static_cast<int>(cap.get(cv::CAP_PROP_FRAME_WIDTH) / 4), 60};
+	//cv::Size graphSize{static_cast<int>(width/ 4), 60};   //edit by duke 2020.11.23
+        //Presenter presenter(FLAGS_u, THROUGHPUT_METRIC_POSITION.y + 15, graphSize);
+
         while (true) {
             timer.start("total");
             framesCounter++;
-            isLastFrame = !frameReadStatus;
-	
+            bool isLastFrame = !frameReadStatus;
+
             // Retrieving face detection results for the previous frame
             faceDetector.wait();
             faceDetector.fetchResults();
             auto prev_detection_results = faceDetector.results;
-	     
+
             // No valid frame to infer if previous frame is the last
             if (!isLastFrame) {
                 faceDetector.enqueue(frame);
@@ -240,9 +248,7 @@ int main(int argc, char *argv[]) {
             // Filling inputs of face analytics networks
             for (auto &&face : prev_detection_results) {
                 if (isFaceAnalyticsEnabled) {
-
                     auto clippedRect = face.location & cv::Rect(0, 0, width, height);
-		
                     cv::Mat face = prev_frame(clippedRect);
                     ageGenderDetector.enqueue(face);
                     headPoseDetector.enqueue(face);
@@ -250,7 +256,7 @@ int main(int argc, char *argv[]) {
                     facialLandmarksDetector.enqueue(face);
                 }
             }
-		
+
             // Running Age/Gender Recognition, Head Pose Estimation, Emotions Recognition, and Facial Landmarks Estimation networks simultaneously
             if (isFaceAnalyticsEnabled) {
                 ageGenderDetector.submitRequest();
@@ -258,6 +264,7 @@ int main(int argc, char *argv[]) {
                 emotionsDetector.submitRequest();
                 facialLandmarksDetector.submitRequest();
             }
+
             // Reading the next frame if the current one is not the last
             if (!isLastFrame) {
 #if 0
@@ -268,7 +275,7 @@ int main(int argc, char *argv[]) {
                     }
                     frameReadStatus = cap.read(next_frame);
                 }
-#else //edit by duke 2020.3.17
+#else      //edit by duke 2020.3.17
 		frameReadStatus=faceDetector.ReadVideo(frame);	
 #endif
             }
@@ -288,6 +295,7 @@ int main(int argc, char *argv[]) {
             }
 
             faces.clear();
+
             // For every detected face
             for (size_t i = 0; i < prev_detection_results.size(); i++) {
                 auto& result = prev_detection_results[i];
@@ -299,7 +307,7 @@ int main(int argc, char *argv[]) {
                     float intensity_mean = calcMean(prev_frame(rect));
 
                     if ((face == nullptr) ||
-                        ((face != nullptr) && ((std::abs(intensity_mean - face->_intensity_mean) / face->_intensity_mean) > 0.07f))) {
+                        ((std::abs(intensity_mean - face->_intensity_mean) / face->_intensity_mean) > 0.07f)) {
                         face = std::make_shared<Face>(id++, rect);
                     } else {
                         prev_faces.remove(face);
@@ -339,23 +347,27 @@ int main(int argc, char *argv[]) {
 
                 faces.push_back(face);
             }
+
+           // presenter.drawGraphs(prev_frame);
+
             //  Visualizing results
             if (!FLAGS_no_show || !FLAGS_o.empty()) {
                 out.str("");
                 out << "Total image throughput: " << std::fixed << std::setprecision(2)
                     << 1000.f / (timer["total"].getSmoothedDuration()) << " fps";
-                cv::putText(prev_frame, out.str(), cv::Point2f(10, 45), cv::FONT_HERSHEY_TRIPLEX, 1.2,
+                cv::putText(prev_frame, out.str(), THROUGHPUT_METRIC_POSITION, cv::FONT_HERSHEY_TRIPLEX, 1,
                             cv::Scalar(255, 0, 0), 2);
 
                 // drawing faces
                 visualizer->draw(prev_frame, faces);
 
-                if (!FLAGS_no_show) {//edit by duke scaled and show2020.3.18
+                if (!FLAGS_no_show) {
+                  //  cv::imshow("Detection results", prev_frame);
+		//edit by duke scaled and show2020.3.18
 		    cv::Mat showFrame;
 		    float scale=0.7;
-		    cv::resize(prev_frame,showFrame,cv::Size(prev_frame.cols*scale,prev_frame.rows*scale),0,0,INTER_LINEAR);	
-   		    cv::imshow("Detection results", showFrame);	
-                    //cv::imshow("Detection results", prev_frame);
+		    cv::resize(prev_frame,showFrame,cv::Size(prev_frame.cols*scale,prev_frame.rows*scale),0,0,cv::INTER_LINEAR);	
+   		    cv::imshow("Detection results", showFrame);
                 }
             }
 
@@ -376,12 +388,16 @@ int main(int argc, char *argv[]) {
             // End of file (or a single frame file like an image). The last frame is displayed to let you check what is shown
             if (isLastFrame) {
                 if (!FLAGS_no_wait) {
-                    std::cout << "No more frames to process. Press any key to exit" << std::endl;
+                    std::cout << "No more frames to process!" << std::endl;
                     cv::waitKey(0);
                 }
                 break;
-            } else if (!FLAGS_no_show && -1 != cv::waitKey(delay)) {
-                break;
+            } else if (!FLAGS_no_show) {
+                int key = cv::waitKey(delay);
+                if (27 == key || 'Q' == key || 'q' == key) {
+                    break;
+                }
+              //  presenter.handleKey(key);
             }
         }
 
@@ -390,12 +406,14 @@ int main(int argc, char *argv[]) {
 
         // Showing performance results
         if (FLAGS_pc) {
-            faceDetector.printPerformanceCounts();
-            ageGenderDetector.printPerformanceCounts();
-            headPoseDetector.printPerformanceCounts();
-            emotionsDetector.printPerformanceCounts();
-            facialLandmarksDetector.printPerformanceCounts();
+            faceDetector.printPerformanceCounts(getFullDeviceName(ie, FLAGS_d));
+            ageGenderDetector.printPerformanceCounts(getFullDeviceName(ie, FLAGS_d_ag));
+            headPoseDetector.printPerformanceCounts(getFullDeviceName(ie, FLAGS_d_hp));
+            emotionsDetector.printPerformanceCounts(getFullDeviceName(ie, FLAGS_d_em));
+            facialLandmarksDetector.printPerformanceCounts(getFullDeviceName(ie, FLAGS_d_lm));
         }
+
+        //std::cout << presenter.reportMeans() << '\n';
         // ---------------------------------------------------------------------------------------------------
 
         if (!FLAGS_o.empty()) {
@@ -403,7 +421,7 @@ int main(int argc, char *argv[]) {
         }
 
         // release input video stream
-       //cap.release();   //edit by duke 2020.3.17
+       // cap.release();//edit by duke 2020.3.17
 
         // close windows
         cv::destroyAllWindows();

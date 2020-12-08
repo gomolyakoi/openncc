@@ -2,39 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-set(TARGET_NAME "human_pose_estimation_demo")
-
-# Find OpenCV components if exist
-find_package(OpenCV COMPONENTS highgui QUIET)
-if(NOT(OpenCV_FOUND))
-    message(WARNING "OPENCV is disabled or not found, " ${TARGET_NAME} " skipped")
-    return()
-endif()
-
-set(SOURCES include/human_pose.hpp
-            include/human_pose_estimation_demo.hpp
-            include/human_pose_estimator.hpp
-            include/peak.hpp
-            include/render_human_pose.hpp
-            src/human_pose.cpp
-            src/human_pose_estimator.cpp
-            src/peak.cpp
-            src/render_human_pose.cpp
-            main.cpp)
-
-link_directories(${LIB_FOLDER} ${CMAKE_CURRENT_SOURCE_DIR})
-link_libraries(${CMAKE_CURRENT_SOURCE_DIR}/libOpenNCC.a)
-
-add_executable(${TARGET_NAME} ${SOURCES})
-
-
-set_target_properties(${TARGET_NAME} PROPERTIES "CMAKE_CXX_FLAGS" "${CMAKE_CXX_FLAGS} -fPIE"
-  COMPILE_PDB_NAME ${TARGET_NAME})
+file (GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file (GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc)
-target_include_directories(${TARGET_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
-target_link_libraries(${TARGET_NAME} ${InferenceEngine_LIBRARIES} usb-1.0 ${OpenCV_LIBS} gflags)
+link_directories(${LIB_FOLDER} ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(UNIX)
-  target_link_libraries(${TARGET_NAME} ${LIB_DL} pthread)
-endif()
+ie_add_sample(NAME human_pose_estimation_demo
+              SOURCES ${SOURCES}
+              HEADERS ${HEADERS}
+              INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include"
+              DEPENDENCIES monitors
+              OPENCV_DEPENDENCIES highgui)
+
+target_link_libraries(human_pose_estimation_demo PRIVATE  OpenNCC usb-1.0)
+
+
