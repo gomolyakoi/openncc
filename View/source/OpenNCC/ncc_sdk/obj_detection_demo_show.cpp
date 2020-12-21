@@ -40,7 +40,7 @@ static int coordinate_is_valid(float x1, float y1, float x2, float y2)
     return 1;
 }
 
-void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate)
+void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate)
 {
 	cv::Mat yuvImg;
 	yuvImg.create(h * 3 / 2, w, CV_8UC1);

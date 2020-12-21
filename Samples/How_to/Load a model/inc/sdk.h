@@ -103,12 +103,13 @@ typedef struct{
 	int   isOutputH26X;
 	int   isOutputJPEG;
  	encodeMode mode;            /* H264/H265 */
+ 	
 } CameraInfo;
 
 #define  MAX_LABEL_SIZE         (10000)         /* max object labels */
 #define  MAX_EXTINPUT_SIZE      (64*1024)      /* max second input length*/
 #define  MAX_OBJ                (100)            /* max second objects */
-/* first mode process setting */
+/* first module process setting */
 typedef struct{
 	int imageWidth;           
 	int imageHeight;        
@@ -134,9 +135,9 @@ typedef struct{
   int   inferenceACC;                                    /* Accelerating  inference 0:close 1:open */
 } Network1Par;
 
-/* second model param */
+/* second module param */
 typedef struct{
-    int startXAdj;                                   
+    int startXAdj;                          //adj value from 1 input param                 
     int startYAdj;
     int endXAdj;                                    
     int endYAdj;
@@ -160,10 +161,8 @@ typedef struct
      int      type;
      unsigned int  seqNo;
      unsigned int  size;
-     unsigned int  temps[8];
-     unsigned int  res[5];
+     unsigned int  res[13];
 }frameSpecOut;
-
 
 int GetYuvData(char *pbuf, int slen);
 int GetMetaData(char *pbuf, int slen);
@@ -186,6 +185,9 @@ int load_fwExt(const char* bootExe, const char* firmware,int pid);
 //sdk ini for single net model and one input
 int sdk_init(vscRecvCb cb,void* param, const char *blob_path, CameraInfo * cam, int cam_Len);
 
+//sdk ini for single net model and one input which support inferenceACC
+int sdk_init_ex(vscRecvCb cb,void* param, const char *blob_path, Network1Par * cam, int cam_Len);
+
 //support two network model or two inputs for single model
 int sdk_net2_init(vscRecvCb cb,void* param, const char *blob_path, Network1Par *par, int par_Len, const char *blob2_path, Network2Par *par2, int par2_Len);
 
@@ -204,6 +206,8 @@ void sdk_uninit(void);
 int get_usb_version(void);
 
 int get_err_no();
+
+int get_init_error(char* strErr,int size);
 
 //blocked:1 read until a packet received 0:if no packet ,return at once
 int read_yuv_data(char* pbuf,int * size,int blocked);

@@ -82,7 +82,7 @@ int main(void)
     cam_info.meanValue[2]   = 0;
     cam_info.stdValue       = 1;
     // 5.2 Blob file save path of the algorithm
-    const char *blob = "./blob/FD.blob";
+    const char *blob = "./blob/classification-fp16.blob";
 
     //6. sdk initialization
     ret = sdk_init(NULL, NULL, (char*) blob, &cam_info, sizeof(cam_info));
@@ -105,7 +105,7 @@ int main(void)
         frameSpecOut hdr;
         float scale = 960 * 1.0 / cameraCfg.camWidth;
         int max_read_size;
-        float min_score = 0.6;
+        float min_score = 0.4;
         char *yuv420p, *memedata;
 
         //Block reading yuv420 data

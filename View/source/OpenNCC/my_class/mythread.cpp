@@ -18,6 +18,9 @@ extern float scale;
 extern float min_score;
 extern bool g_run;
 extern bool showstate;
+extern char m_id[50];
+extern bool acc;
+extern int ftime;
 
 bool two_net_model = true;
 
@@ -112,6 +115,8 @@ void MyThread::load_2net_model(int Veido_type,int modeId)
                  cnn1PrmSet.inputDimHeight = 300;
                  /* 级联下一级模型 */
                  cnn1PrmSet.modelCascade = 1;
+
+                 cnn1PrmSet.inferenceACC=acc?1:0;
 
                  //4.2 第二级模型初始化
                  if(cnn1PrmSet.modelCascade !=0)
@@ -228,6 +233,7 @@ void MyThread::load_2net_model(int Veido_type,int modeId)
                     if (read_meta_data(recvMetaData, &maxReadSize, false) == 0)
                     {
                         memcpy(&hdr, recvMetaData, sizeof(frameSpecOut));
+                        ftime=hdr.res[8];
                     }
 
                     //提取YUV数据和metedata数据
@@ -237,11 +243,11 @@ void MyThread::load_2net_model(int Veido_type,int modeId)
                     sprintf(src, "demo_video_%dx%d@%dfps", cameraCfg.camWidth, cameraCfg.camHeight, cameraCfg.camFps);
 
 
-                    int ftime=hdr.res[9];
-                    char id[50];
-                    camera_get_ncc_id(id);
 
-                    vehicle_license_plate_detection_barrier(yuv420p , cameraCfg.camWidth, cameraCfg.camHeight, scale,src,true, &cnn1PrmSet,&cnn2PrmSet, metaData, min_score,ftime,RES,id,showstate);
+
+
+
+                    vehicle_license_plate_detection_barrier(yuv420p , cameraCfg.camWidth, cameraCfg.camHeight, scale,src,true, &cnn1PrmSet,&cnn2PrmSet, metaData, min_score,ftime,RES,m_id,showstate);
                     if (!cvGetWindowHandle(src))
                     {
                          two_net_model = false;

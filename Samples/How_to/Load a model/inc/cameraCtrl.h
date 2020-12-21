@@ -47,6 +47,17 @@ typedef struct
   int      maxGain;    // max gain
 } SensorModesConfig; // config structure
 
+typedef struct  {
+    uint8_t  key_version;
+    uint8_t  lock[8];
+    uint8_t  hw_config;
+    uint8_t  accelerate_num;
+    uint8_t  hw_version;
+    uint8_t  hw_version_reserve;
+    uint8_t  batch_num[3];
+    uint8_t  reserve[32];
+}Encrypt_t;
+
 typedef struct
 {
   int              num;
@@ -105,10 +116,21 @@ int camera_select_sensor(int sensorid);
 
 #ifdef DEPTH_3D 
 int camera_control_pwm_control(camera_ctrl_pwm_out mode);
+int camera_control_pwm_set(int value);
 int camera_control_alg_bf(char* buf, int len);
 int camera_control_alg_cal(char* buf, int len);
 int camera_control_get_temp(int* temp);
 #endif
+
+int  device_control_get_fw_version(char* fw,int len);
+int  device_control_get_device_id(uint8_t* id,int size);
+
+//return string id for export python
+void  camera_get_ncc_id(char* cpuid);
+void  camera_get_fw_version(char* fwversion);
+
+int  device_control_get_device_info(Encrypt_t* info);
+int  device_control_set_device_info(Encrypt_t* info);
 
 #ifdef __cplusplus
 }

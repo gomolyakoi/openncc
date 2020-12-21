@@ -84,8 +84,12 @@ private slots:
 
     void on_showstate_stateChanged(int arg1);
 
+    void on_acc_stateChanged(int arg1);
+
 private:
     int PostProcessFrame(char* pFrame,int bufsize,float min_score,float scale,char* winhndl);
+
+
 
 private:
     Ui::Widget *ui;
@@ -98,6 +102,9 @@ private:
     int mvideo_type;
     int mh265en;
     int msensorModeId;
+    char m_version[50];
+
+
 
 signals:
     void start_2net_model(int type,int modeId);

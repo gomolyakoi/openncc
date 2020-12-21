@@ -103,6 +103,7 @@ typedef struct{
 	int   isOutputH26X;
 	int   isOutputJPEG;
  	encodeMode mode;            /* H264/H265 */
+ 	
 } CameraInfo;
 
 #define  MAX_LABEL_SIZE         (10000)         /* max object labels */
@@ -183,6 +184,9 @@ int load_fwExt(const char* bootExe, const char* firmware,int pid);
 
 //sdk ini for single net model and one input
 int sdk_init(vscRecvCb cb,void* param, const char *blob_path, CameraInfo * cam, int cam_Len);
+
+//sdk ini for single net model and one input which support inferenceACC
+int sdk_init_ex(vscRecvCb cb,void* param, const char *blob_path, Network1Par * cam, int cam_Len);
 
 //support two network model or two inputs for single model
 int sdk_net2_init(vscRecvCb cb,void* param, const char *blob_path, Network1Par *par, int par_Len, const char *blob2_path, Network2Par *par2, int par2_Len);

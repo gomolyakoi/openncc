@@ -68,7 +68,7 @@ void *ControlThread(void* arg)
 	return NULL;
 }
 
-void  fd_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate)
+void  fd_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate)
 {
 #if 0
 	vector<uchar> buff(w);

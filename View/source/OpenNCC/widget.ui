@@ -481,6 +481,12 @@
                   <height>216</height>
                  </size>
                 </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>384</width>
+                  <height>216</height>
+                 </size>
+                </property>
                 <property name="cursor">
                  <cursorShape>ArrowCursor</cursorShape>
                 </property>
@@ -505,6 +511,13 @@ border:2px solid rgb(71, 169, 255);</string>
               <widget class="QCheckBox" name="showstate">
                <property name="text">
                 <string>show state</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="acc">
+               <property name="text">
+                <string>inference accelerate</string>
                </property>
               </widget>
              </item>

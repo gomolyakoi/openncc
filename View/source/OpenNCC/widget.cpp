@@ -32,7 +32,7 @@ extern "C" int gettimeofday(struct timeval *tp, void *tzp);
 /* 2. 人脸检测demo程序 */
 #define  DEMO_FACE_DETECTION  1
 
-#define APP_VERSION "Version:1.3.0"
+#define APP_VERSION "NV02.101.31"
 
 #define  OPENCV_SHOW_SCALE    (0.8)    /* 显示缩放系数 */
 extern "C"  void os_sleep(int ms);
@@ -44,13 +44,13 @@ QString usb_version;
 float scale;
 float min_score;
 int RES;
-int ftime;
-char *id;
+int ftime=10;
+//char *id;
 bool showstate;
-
+bool acc=0;
 QDir dir;
 QString current_t;
-
+char m_id[50];
 #define MAX_FRAME_ROWS  2180
 #define MAX_FRAME_COLS  3872
 #define BYTES_PIXELS    (2)
@@ -66,13 +66,15 @@ static SensorModesList   list;
 QStringList valid_data_list;
 QString cropx1,cropy1,cropx2,cropy2;
 
-static CameraInfo cam_info;
-extern void  fd_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
-extern void  cls_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
-extern void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
+//static CameraInfo cam_info;
+static Network1Par cam_info;
+
+extern void  fd_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
+extern void  cls_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
+extern void  obj_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
 //extern void  mask_show_img_func(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score);
 
-typedef void  (*analyzeMetedata)(void *data, int w, int h, float scale, char *name, int nn_fov_show, CameraInfo *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
+typedef void  (*analyzeMetedata)(void *data, int w, int h, float scale, char *name, int nn_fov_show, Network1Par *nnparm, char *nnret,float min_score,int ftime,int RES,char *id,bool showstate);
 static analyzeMetedata fun;
 
 
@@ -292,6 +294,9 @@ void Widget::on_load_fw_btn_clicked()
     1,                           /*打开H26X编码功能*/
     1,                           /*打开MJPEG编码功能*/
     ENCODE_H264_MODE,            /* 使用H264编码格式 */
+    NULL,
+    0,
+    0
     };
 
     if(!ui->mjpeg_stream->isChecked()&&!ui->yuv_stream->isChecked()&&!ui->h264_stream->isChecked()){
@@ -328,6 +333,8 @@ void Widget::on_load_fw_btn_clicked()
             ui->log_area->append(tr("usb sersion: %1").arg(get_usb_version()));
 
             //2. 获取camera参数
+            camera_get_fw_version(m_version);
+            camera_get_ncc_id(m_id);
             camera_control_get_features(&list);
             for(int i=0;i<list.num;i++)
             {
@@ -404,6 +411,9 @@ void Widget::on_load_fw_btn_clicked()
             int index = ui->model_1st->currentIndex();
             QString modelSelectLog("No blob has been selected");
 
+            cam_info.inferenceACC=acc?1:0;
+            //printf("inferenceACC %d\n",acc);
+
             if(index > 0 && index <= 10){
 
                 QString blobFile = blobVecs[index];
@@ -417,10 +427,10 @@ void Widget::on_load_fw_btn_clicked()
 
                 modelSelectLog = QString("model %1").arg(index);
 
-                ret = sdk_init(NULL,NULL,blob, &cam_info, sizeof(cam_info));
+                ret = sdk_init_ex(NULL,NULL,blob, &cam_info, sizeof(cam_info));
 
             }else{
-                ret = sdk_init(NULL,NULL,NULL, &cam_info, sizeof(cam_info));
+                ret = sdk_init_ex(NULL,NULL,NULL, &cam_info, sizeof(cam_info));
             }
 
             ui->log_area->append(modelSelectLog);
@@ -463,13 +473,11 @@ void Widget::on_load_fw_btn_clicked()
 
                     if (get_log%30==0)
                     {
-                        char ch[50];
-                        camera_get_ncc_id(ch);
-                        char version[50];
-                        camera_get_fw_version(version);
+
+
                         QString temp_info = tr("Temperature CSS = %1 MSS = %2 UPA0 = %3 UPA1 =%4 ID:%5 ver:%6")
                                 .arg(temp->res[9]).arg(temp->res[10]).arg(temp->res[11]).arg(temp->res[12])
-                                .arg(QString(ch)).arg(QString(version));
+                                .arg(QString(m_id)).arg(QString(m_version));
                         ui->log_area->append(temp_info);
                     }
 
@@ -602,19 +610,23 @@ int Widget::PostProcessFrame(char* pFrame,int bufsize,float min_score,float scal
 
     size = sizeof(metadata);
 
-    read_meta_data(metadata,&size,0);
+     ret=read_meta_data(metadata,&size,0);
 
     if(temp->size==3110400)
         RES=1;
     else if(temp->size==12441600)
         RES=2;
 
-    ftime=temp->res[9];
-    char id[50];
-    camera_get_ncc_id(id);
+    frameSpecOut* out = (frameSpecOut*)metadata;
+    if(ret==0)
+    {
+    ftime=out->res[8];
+    }
+    //printf("ftime=%d\n",ftime);
+  //  id=m_id;
     sprintf(winhndl, "NCC_View_%dx%d@%dfps", cameraCfg.camWidth, cameraCfg.camHeight, cameraCfg.camFps);
     // 检测
-    fun(Postframe, cameraCfg.camWidth, cameraCfg.camHeight, scale,winhndl, true, &cam_info, metadata+sizeof(frameSpecOut)+OUTPUT_INDEX_SIZE,min_score,ftime,RES,id,showstate);
+    fun(Postframe, cameraCfg.camWidth, cameraCfg.camHeight, scale,winhndl, true, &cam_info, metadata+sizeof(frameSpecOut)+OUTPUT_INDEX_SIZE,min_score,ftime,RES,m_id,showstate);
     //printf("%u",temp->size);
     return 0;
 }
@@ -833,5 +845,17 @@ void Widget::on_showstate_stateChanged(int arg1)
     else
     {
         showstate=false;
+    }
+}
+
+void Widget::on_acc_stateChanged(int arg1)
+{
+    if(arg1)
+    {
+        acc=true;
+    }
+    else
+    {
+        acc=false;
     }
 }
